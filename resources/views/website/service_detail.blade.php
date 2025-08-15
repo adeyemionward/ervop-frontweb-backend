@@ -1,0 +1,116 @@
+@extends('layout.master')
+@section('content')
+    <style>
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .faq-question.active + .faq-answer {
+            max-height: 200px; /* Adjust as needed */
+        }
+        .faq-question.active .icon-plus {
+            transform: rotate(45deg);
+        }
+    </style>
+        <!-- Hero Section -->
+        <section class="relative py-20 md:py-32 bg-gray-800">
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop" alt="Strategy session" class="absolute inset-0 w-full h-full object-cover opacity-30">
+            <div class="relative container mx-auto px-6 text-center text-white">
+                <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
+                    Business Strategy Consultation
+                </h1>
+                <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-gray-200">
+                    A comprehensive, one-on-one session to develop a clear roadmap for your business's success.
+                </p>
+            </div>
+        </section>
+
+        <!-- Service Details Section -->
+        <section class="py-20">
+            <div class="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12">
+                
+                <!-- Left Column: Main Content -->
+                <div class="lg:col-span-2">
+                    <div class="prose prose-lg max-w-none text-gray-600">
+                        <p class="lead">Are you an ambitious entrepreneur feeling stuck? Our Business Strategy Consultation is designed to provide you with the clarity and direction needed to navigate the Nigerian market, overcome challenges, and achieve sustainable growth.</p>
+                        
+                        <h2 class="mt-12 text-2xl font-bold text-gray-900">What's Included?</h2>
+                        <ul class="mt-4 space-y-3">
+                            <li class="flex items-start"><i data-lucide="check-circle" class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0"></i><span>A 90-minute intensive one-on-one session (virtual or in-person).</span></li>
+                            <li class="flex items-start"><i data-lucide="check-circle" class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0"></i><span>In-depth analysis of your current business model and challenges.</span></li>
+                            <li class="flex items-start"><i data-lucide="check-circle" class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0"></i><span>Development of a clear, actionable 3-month growth plan.</span></li>
+                            <li class="flex items-start"><i data-lucide="check-circle" class="w-6 h-6 text-green-500 mr-3 mt-1 flex-shrink-0"></i><span>A detailed follow-up report with key recommendations.</span></li>
+                        </ul>
+
+                        <h2 class="mt-12 text-2xl font-bold text-gray-900">Who is this for?</h2>
+                        <p>This service is perfect for early-stage founders, solopreneurs, and small business owners in Nigeria who are looking to:</p>
+                        <ul>
+                            <li>Define a clear market entry strategy.</li>
+                            <li>Optimize their sales and marketing funnels.</li>
+                            <li>Improve operational efficiency and profitability.</li>
+                            <li>Prepare their business for investment.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right Column: Booking Card (Sticky) -->
+                <aside class="lg:col-span-1 lg:sticky top-28">
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-lg">
+                        <p class="text-4xl font-bold text-gray-900">₦75,000</p>
+                        <p class="text-sm text-gray-500 mt-1">per 90-minute session</p>
+                        
+                        <div class="mt-6 space-y-3 text-sm border-t pt-4">
+                            <div class="flex items-center"><i data-lucide="clock" class="w-4 h-4 mr-3 text-gray-400"></i><span>90 Minute Duration</span></div>
+                            <div class="flex items-center"><i data-lucide="video" class="w-4 h-4 mr-3 text-gray-400"></i><span>Virtual via Google Meet</span></div>
+                            <div class="flex items-center"><i data-lucide="file-text" class="w-4 h-4 mr-3 text-gray-400"></i><span>Follow-up Report Included</span></div>
+                        </div>
+
+                        <a href="#" class="mt-6 w-full bg-blue-600 text-white hover:bg-blue-700 font-semibold py-3 px-6 rounded-lg flex items-center justify-center transition-colors">
+                            Book This Service
+                        </a>
+                    </div>
+                </aside>
+
+            </div>
+        </section>
+        
+        <!-- FAQ Section -->
+         <section class="py-20 bg-gray-50">
+            <div class="container mx-auto px-6 max-w-3xl">
+                <h2 class="text-center text-3xl font-bold text-gray-900 mb-12">Frequently Asked Questions</h2>
+                <div class="space-y-4">
+                    <div class="border-b border-gray-200 pb-4">
+                        <button class="faq-question w-full flex justify-between items-center text-left">
+                            <h3 class="text-lg font-semibold text-gray-900">What should I prepare for the session?</h3>
+                            <i data-lucide="plus" class="w-5 h-5 text-blue-600 icon-plus transition-transform"></i>
+                        </button>
+                        <div class="faq-answer mt-4">
+                            <p class="text-gray-600">Before our call, you'll receive a short intake form to fill out. It's also helpful to come with your top 3 business challenges and a clear idea of what you want to achieve.</p>
+                        </div>
+                    </div>
+                    <div class="border-b border-gray-200 pb-4">
+                        <button class="faq-question w-full flex justify-between items-center text-left">
+                            <h3 class="text-lg font-semibold text-gray-900">Do you offer follow-up support?</h3>
+                            <i data-lucide="plus" class="w-5 h-5 text-blue-600 icon-plus transition-transform"></i>
+                        </button>
+                        <div class="faq-answer mt-4">
+                            <p class="text-gray-600">Yes, this consultation includes one week of follow-up support via email to answer any clarifying questions you may have about the strategy document.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    <script>
+        lucide.createIcons();
+
+        // FAQ Accordion Logic
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                question.classList.toggle('active');
+            });
+        });
+    </script>
+@endsection

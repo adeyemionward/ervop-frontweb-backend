@@ -3,11 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enum\BusinessType;
+use App\Enum\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
-class User extends Authenticatable
+use Tymon\JWTAuth\Contracts\JWTSubject;
+class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -18,9 +21,27 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'firstname',
+        'lastname',
+        'business_type',
+        'business_name',
+        'business_industry',
+        'ervop_url',
+        'website',
         'email',
-        'password',
+        'phone',
+        'password', // It is safe to add 'password' as it's hashed before saving.
+        'last_login_at',
+        'last_login_ip',
+        'user_type',
+        'status',
+        'business_logo',
+        'address',
+        'city',
+        'state',
+        'verification_token',
+        'verification_token_expires_at',
+        'is_verified',
     ];
 
     /**
@@ -44,5 +65,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected $casts = [
+        'status' => UserStatus::class,
+        'business_type' => BusinessType::class,
+    ];
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }
