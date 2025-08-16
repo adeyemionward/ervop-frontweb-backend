@@ -6,6 +6,8 @@ use App\Http\Controllers\API\Auth\RegistrationController;
 use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Professionals\AppointmentController;
 use App\Http\Controllers\API\Professionals\ContactController;
+use App\Http\Controllers\API\Professionals\DocumentController;
+use App\Http\Controllers\API\Professionals\InvoiceController;
 use App\Http\Controllers\API\Professionals\ProjectController;
 use App\Http\Controllers\API\Professionals\ServiceController;
 
@@ -48,10 +50,26 @@ use App\Http\Controllers\API\Professionals\ServiceController;
 
                     Route::group(['prefix' => '/projects', 'as' => 'projects.'], function () {
                         Route::post('create', [ProjectController::class, 'create']);
-                        Route::get('list', [AppointmentController::class, 'index']);
-                        Route::get('show/{id}', [AppointmentController::class, 'show']);
-                        Route::put('update/{id}', [AppointmentController::class, 'update']);
-                        Route::delete('delete/{id}', [AppointmentController::class, 'delete']);
+                        Route::get('list', [ProjectController::class, 'index']);
+                        Route::get('show/{id}', [ProjectController::class, 'show']);
+                        Route::put('update/{id}', [ProjectController::class, 'update']);
+                        Route::delete('delete/{id}', [ProjectController::class, 'delete']);
+                    });
+
+                    Route::group(['prefix' => '/documents', 'as' => 'documents.'], function () {
+                        Route::post('create', [DocumentController::class, 'create']);
+                        Route::get('list', [DocumentController::class, 'index']);
+                        Route::get('show/{id}', [DocumentController::class, 'show']);
+                        Route::put('update/{id}', [DocumentController::class, 'update']);
+                        Route::delete('delete/{id}', [DocumentController::class, 'delete']);
+                    });
+
+                    Route::group(['prefix' => '/invoices', 'as' => 'invoices.'], function () {
+                        Route::post('create', [InvoiceController::class, 'create']);
+                        Route::get('list', [InvoiceController::class, 'index']);
+                        Route::get('show/{id}', [InvoiceController::class, 'show']);
+                        Route::put('update/{id}', [InvoiceController::class, 'update']);
+                        Route::delete('delete/{id}', [InvoiceController::class, 'delete']);
                     });
                 });
             });

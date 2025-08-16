@@ -49,7 +49,7 @@ class Appointment extends Model
         );
     }
 
-     public function service(){
+    public function service(){
         return $this->belongsTo(Service::class,'service_id');
     }
 
