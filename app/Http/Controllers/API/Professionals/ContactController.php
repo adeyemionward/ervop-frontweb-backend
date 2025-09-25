@@ -9,6 +9,8 @@ use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+
 
 class ContactController extends Controller
 {
@@ -42,9 +44,8 @@ class ContactController extends Controller
             'email' => ['nullable', 'string', 'email', 'max:255'],
             'phone' => ['required', 'string', 'max:255', 'unique:contacts'],
             'company' => ['nullable', 'string', 'max:255'],
-            'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
+            // 'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
             'tags' => ['nullable', 'string'],
-
         ]);
 
         if ($validator->fails()) {
@@ -79,4 +80,113 @@ class ContactController extends Controller
             return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function show($id)
+    {
+
+        try {
+            $contact = Contact::where('user_id', Auth::id())->where('id', $id)->first();
+            if (is_null($contact)) {
+                return response()->json(['message' => 'No contact found', 'status' => false], 200);
+            }
+
+            return response()->json([
+                'status' => true,
+                'client' => $contact,
+            ], 200);
+
+        } catch (\Exception $e) {
+           return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function update(Request $request, $id)
+    {
+
+        // Find the contact
+        $contact = Contact::find($id);
+
+        if (!$contact) {
+            return response()->json([
+                'message' => 'Contact not found',
+                'status' => false,
+            ], 404);
+        }
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'firstname' => ['required', 'string', 'max:255'],
+            'lastname'  => ['required', 'string', 'max:255'],
+            'email'     => ['nullable', 'string', 'email', 'max:255'],
+            'phone'     => ['required', 'string', 'max:255', Rule::unique('contacts')->ignore($contact->id)],
+            'company'   => ['nullable', 'string', 'max:255'],
+            'tags'      => ['nullable', 'string'],
+            // 'status'    => ['nullable', 'in:active,inactive'], // optional if you allow status update
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            // Update contact fields
+            $contact->update([
+                'firstname' => $request->input('firstname'),
+                'lastname'  => $request->input('lastname'),
+                'email'     => $request->input('email'),
+                'phone'     => $request->input('phone'),
+                'company'   => $request->input('company'),
+                'tags'      => $request->input('tags'),
+                // 'status'    => $request->input('status', $contact->status), // keep old if not provided
+            ]);
+
+            return response()->json([
+                'message' => 'Contact updated successfully',
+                'status' => true,
+                'data' => $contact,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred',
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function delete($id)
+    {
+        // Find the contact
+        $contact = Contact::find($id);
+
+        if (!$contact) {
+            return response()->json([
+                'message' => 'Contact not found',
+                'status' => false,
+            ], 404);
+        }
+
+        try {
+            $contact->delete();
+
+            return response()->json([
+                'message' => 'Contact deleted successfully',
+                'status' => true,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred',
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

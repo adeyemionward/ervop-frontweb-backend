@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contact extends Model
 {
+
+    use SoftDeletes;
     protected $fillable = [
         'user_id',
         'firstname',
@@ -15,5 +18,15 @@ class Contact extends Model
         'company',
         'photo',
         'tags',
+        // 'status',
     ];
+
+
+
+    protected $dates = ['deleted_at'];
+
+    public function document() {
+        return $this->hasMany(Document::class);
+    }
 }
+

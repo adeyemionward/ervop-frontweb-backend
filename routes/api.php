@@ -5,11 +5,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\RegistrationController;
 use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Professionals\AppointmentController;
+use App\Http\Controllers\API\Professionals\AppointmentNoteController;
 use App\Http\Controllers\API\Professionals\ContactController;
 use App\Http\Controllers\API\Professionals\DocumentController;
+use App\Http\Controllers\API\Professionals\FormController;
+use App\Http\Controllers\API\Professionals\FormSubmissionController;
 use App\Http\Controllers\API\Professionals\InvoiceController;
+use App\Http\Controllers\API\Professionals\InvoicePaymentController;
 use App\Http\Controllers\API\Professionals\ProjectController;
 use App\Http\Controllers\API\Professionals\ServiceController;
+use App\Http\Controllers\API\Professionals\TransactionController;
 
     Route::group(['middleware' => 'cors'], function ()
     {
@@ -40,18 +45,33 @@ use App\Http\Controllers\API\Professionals\ServiceController;
                     });
 
                     Route::group(['prefix' => '/appointments', 'as' => 'appointments.'], function () {
+
+                        Route::get('getAvailableSlots', [AppointmentController::class, 'getAvailableSlots']);
                         Route::post('create', [AppointmentController::class, 'create']);
                         Route::get('list', [AppointmentController::class, 'index']);
-                        Route::get('show/{id}', [AppointmentController::class, 'show']);
+                        Route::get('show/{appointment}', [AppointmentController::class, 'show']);
+                        Route::get('clientAppointments/{contactId}', [AppointmentController::class, 'clientAppointments']);
                         Route::put('update/{id}', [AppointmentController::class, 'update']);
                         Route::delete('delete/{id}', [AppointmentController::class, 'delete']);
+                        Route::get('showSetAvailability', [AppointmentController::class, 'showSetAvailability']);
                         Route::post('setAvailability', [AppointmentController::class, 'setAvailability']);
+                        Route::post('updateStatus/{id}', [AppointmentController::class, 'updateStatus']);
+                        Route::post('reschedule/{id}', [AppointmentController::class, 'reschedule']);
+
+                        Route::group(['prefix' => '/notes', 'as' => 'notes.'], function () {
+                            Route::get('list/{appointment}', [AppointmentNoteController::class, 'index']);
+                            Route::post('create/{appointment}', [AppointmentNoteController::class, 'store']);
+                            Route::put('update/{note}', [AppointmentNoteController::class, 'update']);
+                            Route::delete('delete/{note}', [AppointmentNoteController::class, 'destroy']);
+                        });
+
                     });
 
                     Route::group(['prefix' => '/projects', 'as' => 'projects.'], function () {
                         Route::post('create', [ProjectController::class, 'create']);
                         Route::get('list', [ProjectController::class, 'index']);
                         Route::get('show/{id}', [ProjectController::class, 'show']);
+                        Route::get('clientProjects/{contactId}', [ProjectController::class, 'clientProjects']);
                         Route::put('update/{id}', [ProjectController::class, 'update']);
                         Route::delete('delete/{id}', [ProjectController::class, 'delete']);
                     });
@@ -59,7 +79,8 @@ use App\Http\Controllers\API\Professionals\ServiceController;
                     Route::group(['prefix' => '/documents', 'as' => 'documents.'], function () {
                         Route::post('create', [DocumentController::class, 'create']);
                         Route::get('list', [DocumentController::class, 'index']);
-                        Route::get('show/{id}', [DocumentController::class, 'show']);
+                        Route::get('userDocs/{id}', [DocumentController::class, 'userDocs']);
+                        Route::get('clientsWithDocs', [DocumentController::class, 'clientsWithDocs']);
                         Route::put('update/{id}', [DocumentController::class, 'update']);
                         Route::delete('delete/{id}', [DocumentController::class, 'delete']);
                     });
@@ -67,9 +88,42 @@ use App\Http\Controllers\API\Professionals\ServiceController;
                     Route::group(['prefix' => '/invoices', 'as' => 'invoices.'], function () {
                         Route::post('create', [InvoiceController::class, 'create']);
                         Route::get('list', [InvoiceController::class, 'index']);
-                        Route::get('show/{id}', [InvoiceController::class, 'show']);
-                        Route::put('update/{id}', [InvoiceController::class, 'update']);
-                        Route::delete('delete/{id}', [InvoiceController::class, 'delete']);
+                        Route::get('show/{invoice}', [InvoiceController::class, 'show']);
+                        Route::put('update/{invoice}', [InvoiceController::class, 'update']);
+                        Route::delete('delete/{invoice}', [InvoiceController::class, 'delete']);
+
+                        Route::get('listPayment', [InvoicePaymentController::class, 'listPayment']);
+                        Route::post('recordPayment/{invoice}', [InvoicePaymentController::class, 'recordPayment']);
+                        Route::put('updatePayment/{payment}', [InvoicePaymentController::class, 'updatePayment']);
+                        Route::get('showPayment/{payment}', [InvoicePaymentController::class, 'showPayment']);
+                        Route::delete('deletePayment/{payment}', [InvoicePaymentController::class, 'deletePayment']);
+                    });
+
+                    Route::group(['prefix' => '/transactions', 'as' => 'transactions.'], function () {
+                        Route::post('create', [TransactionController::class, 'create']);
+                        Route::get('list', [TransactionController::class, 'index']);
+                        Route::get('show/{id}', [TransactionController::class, 'show']);
+                        Route::put('update/{id}', [TransactionController::class, 'update']);
+                        Route::delete('delete/{id}', [TransactionController::class, 'delete']);
+
+                        Route::get('listPayment', [InvoicePaymentController::class, 'listPayment']);
+                        Route::post('createCategory/', [TransactionController::class, 'createCategory']);
+                        Route::get('listCategory/', [TransactionController::class, 'listCategory']);
+                        Route::get('showPayment/{payment}', [InvoicePaymentController::class, 'showPayment']);
+                        Route::delete('deletePayment/{payment}', [InvoicePaymentController::class, 'deletePayment']);
+                    });
+
+                    Route::group(['prefix' => '/forms', 'as' => 'forms.'], function () {
+                        Route::post('create', [FormController::class, 'create']);
+                        Route::get('list', [FormController::class, 'index']);
+                        Route::get('show/{form}', [FormController::class, 'show']);
+                        Route::put('update/{form}', [FormController::class, 'update']);
+
+                        Route::post('submitForm', [FormSubmissionController::class, 'submitForm']);
+                        Route::get('listFormSubmissions/{form}', [FormSubmissionController::class, 'listFormSubmissions']);
+                        Route::get('viewFormSubmissions/{submission}', [FormSubmissionController::class, 'viewFormSubmissions']);
+                        Route::put('updateFormSubmissions/{submission}', [FormSubmissionController::class, 'updateFormSubmissions']);
+                        Route::delete('delete/{id}', [FormController::class, 'delete']);
                     });
                 });
             });

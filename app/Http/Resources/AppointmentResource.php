@@ -19,6 +19,7 @@ class AppointmentResource extends JsonResource
             'date' => $this->date,
             'time' => $this->time,
             'appointment_status' => $this->appointment_status,
+            'notes' => $this->notes,
 
             // Flattened service fields (checking if the relationship is loaded)
             'service_id' => $this->whenLoaded('service', fn() => $this->service->id),

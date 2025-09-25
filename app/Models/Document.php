@@ -10,8 +10,8 @@ class Document extends Model
         'user_id',
         'contact_id',
         'project_id',
+        'appointment_id',
         'title',
-        'document_path',
         'tags',
     ];
 
@@ -22,5 +22,10 @@ class Document extends Model
     public function customer()
     {
         return $this->belongsTo(Contact::class,'contact_id');
+    }
+
+    public function files()
+    {
+        return $this->hasMany(DocumentFile::class);
     }
 }

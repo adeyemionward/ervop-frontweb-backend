@@ -10,11 +10,14 @@ class InvoiceItem extends Model
 
     protected $fillable = [
         'invoice_id',
+        'appointment_id',
+        'project_id',
         'user_id',
         'contact_id',
         'description',
         'quantity',
         'rate',
+        'total'
     ];
 
     public function invoice()

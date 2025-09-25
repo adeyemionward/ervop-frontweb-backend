@@ -81,4 +81,25 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    public function availabilities()
+    {
+        return $this->hasMany(Availability::class);
+    }
+
+    /**
+     * Get the date overrides (unavailable dates) for the user.
+     */
+    public function dateOverrides()
+    {
+        return $this->hasMany(DateOverride::class);
+    }
+
+    /**
+     * Get the appointments booked with this user (as the professional).
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
 }

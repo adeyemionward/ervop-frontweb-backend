@@ -111,4 +111,45 @@ class ProjectController extends Controller
             return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function show($id)
+    {
+
+        try {
+            $project = Project::where('user_id', Auth::id())->where('id', $id)->first();
+            if (is_null($project)) {
+                return response()->json(['message' => 'No Project found', 'status' => false], 200);
+            }
+
+            return response()->json([
+                'status' => true,
+                'project' => $project,
+            ], 200);
+
+        } catch (\Exception $e) {
+           return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function clientProjects($contactId)
+    {
+        $user = Auth::user();
+        // Fetch all services for the authenticated user
+        try {
+            $projects = Project::where('user_id', $user->id)->where('contact_id', $contactId)->orderBy('id', 'DESC')->get();
+
+            if ($projects->isEmpty()) {
+                return response()->json(['message' => 'No client work or project found', 'status' => false], 200);
+            }
+            $projects = ProjectResource::collection($projects);
+            return response()->json([
+                'status' => true,
+                'data' => $projects,
+            ], 200);
+
+        } catch (\Exception $e) {
+           return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
 }

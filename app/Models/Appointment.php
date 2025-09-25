@@ -18,7 +18,8 @@ class Appointment extends Model
         'notes',
     ];
 
-    protected $appends = ['appointment_status'];
+   // protected $appends = ['appointment_status'];
+
 
     /**
      * Get the status of the appointment.
@@ -30,20 +31,20 @@ class Appointment extends Model
     {
         return Attribute::make(
             get: function ($value, $attributes) {
-                // 1. If a status is already saved in the database, return it.
-                if ($value) {
+                // 1. If status already exists in DB, return it.
+                if (!empty($value)) {
                     return $value;
                 }
 
-                // 2. If not, calculate it based on the date and time.
-                if (empty($attributes['date'])) {
-                   return $appointmentDateTime = Carbon::parse($attributes['date'] . ' ' . $attributes['time']);
+                // 2. If date or time is missing, return null (or a default value).
+                if (empty($attributes['date']) || empty($attributes['time'])) {
+                    return null;
                 }
 
-                // Combine date and time into a single Carbon instance
+                // 3. Combine date and time into a Carbon instance.
                 $appointmentDateTime = Carbon::parse($attributes['date'] . ' ' . $attributes['time']);
 
-                // 3. Compare with the current time and return the calculated status.
+                // 4. Compare with the current time and return calculated status.
                 return $appointmentDateTime->isPast() ? 'Completed' : 'Upcoming';
             }
         );
@@ -57,4 +58,30 @@ class Appointment extends Model
     {
         return $this->belongsTo(Contact::class,'contact_id');
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'appointment_id'); // 👈 assumes invoices table has appointment_id
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class, 'appointment_id'); // 👈 assumes documents table has appointment_id
+    }
+
+    // public function notes()
+    // {
+    //     return $this->hasMany(AppointmentNote::class)->latest(); // Order by newest first
+    // }
+
+    public function notes()
+    {
+        return $this->hasMany(AppointmentNote::class, 'appointment_id');
+    }
+
+    public function notesHistory()
+    {
+        return $this->hasMany(AppointmentNote::class, 'appointment_id');
+    }
+
 }

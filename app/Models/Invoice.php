@@ -9,14 +9,20 @@ class Invoice extends Model
     protected $fillable = [
         'user_id',
         'contact_id',
+        'appointment_id',
         'project_id',
         'invoice_no',
         'invoice_type',
         'issue_date',
         'due_date',
-        'tax',
+        'tax_percentage',
+        'discount_percentage',
+        'tax_amount',
+        'subtotal',
         'discount',
+        'total',
         'notes',
+        'remaining_balance',
     ];
 
     public function items()
@@ -37,7 +43,7 @@ class Invoice extends Model
      */
     public function customer()
     {
-        return $this->belongsTo(Contact::class);
+        return $this->belongsTo(Contact::class,'contact_id');
     }
 
     /**
@@ -47,4 +53,10 @@ class Invoice extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(InvoicePayment::class)->latest('payment_date');
+    }
+
 }
