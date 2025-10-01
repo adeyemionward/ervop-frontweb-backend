@@ -11,27 +11,46 @@ use Illuminate\Support\Facades\Validator;
 
 class AppointmentNoteController extends Controller
 {
-    public function index(Appointment $appointment)
+   public function index(Appointment $appointment)
     {
-        $user = Auth::user();
-        // Fetch all services for the authenticated user
         try {
-            $appointmentNote = AppointmentNote::where('appointment_id', $appointment->id)->get();
+            // Eager load user relation (only id + firstname)
+            $appointmentNotes = AppointmentNote::with('user:id,firstname,lastname')
+                ->where('appointment_id', $appointment->id)
+                ->get();
 
-            if ($appointmentNote->isEmpty()) {
-                return response()->json(['message' => 'No appointment found', 'status' => false], 200);
+            if ($appointmentNotes->isEmpty()) {
+                return response()->json([
+                    'message' => 'No notes found for this appointment',
+                    'status' => false
+                ], 200);
             }
+
+            // Map notes into clean structure
+            $notes = $appointmentNotes->map(function ($note) {
+                return [
+                    'id' => $note->id,
+                    'content' => $note->content,
+                    'author' => $note->user->firstname .' '. $note->user->lastname ?? 'Unknown',
+                    'created_at' => $note->created_at,
+                    'updated_at' => $note->updated_at,
+                ];
+            });
 
             return response()->json([
                 'status' => true,
-                'data' => $appointmentNote,
+                'data' => $notes,
             ], 200);
 
         } catch (\Exception $e) {
-           return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Error occurred',
+                'status' => false,
+                'error' => $e->getMessage()
+            ], 500);
         }
-
     }
+
 
     public function store(Request $request, Appointment $appointment)
     {
@@ -55,12 +74,21 @@ class AppointmentNoteController extends Controller
             'content' => $request->input('content'),
         ]);
 
-        return response()->json($note, 201);
+        // ✅ Load user relation and include firstname
+        $note->load('user:id,firstname');
+
+        return response()->json([
+            'id' => $note->id,
+            'content' => $note->content,
+            'author' => $note->user->firstname ?? 'Unknown',
+            'created_at' => $note->created_at,
+            'updated_at' => $note->updated_at,
+        ], 201);
     }
 
     /**
      * Update an existing appointment note.
-     */
+    */
 
     public function update(Request $request, AppointmentNote $note)
     {
@@ -80,30 +108,27 @@ class AppointmentNoteController extends Controller
         $note->update($validator->validated());
 
         return response()->json($note);
-}
-
-    /**
-     * Delete an appointment note.
-     */
-   /**
- * Remove the specified appointment note from storage.
- */
-public function destroy(AppointmentNote $note)
-{
-    $isDeleted = $note->delete();
-
-    if ($isDeleted) {
-        return response()->json([
-            'message' => 'Note deleted successfully',
-            'status' => true
-        ], 200);
     }
 
-    // This handles the rare case where the deletion fails for some reason.
-    return response()->json([
-        'message' => 'Failed to delete the note',
-        'status' => false
-    ], 500); // 500 Internal Server Error
-}
+    /**
+     * Remove the specified appointment note from storage.
+    */
+    public function destroy(AppointmentNote $note)
+    {
+        $isDeleted = $note->delete();
+
+        if ($isDeleted) {
+            return response()->json([
+                'message' => 'Note deleted successfully',
+                'status' => true
+            ], 200);
+        }
+        
+        // This handles the rare case where the deletion fails for some reason.
+        return response()->json([
+            'message' => 'Failed to delete the note',
+            'status' => false
+        ], 500); // 500 Internal Server Error
+    }
 }
 

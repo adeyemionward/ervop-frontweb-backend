@@ -57,6 +57,7 @@ use App\Http\Controllers\API\Professionals\TransactionController;
                         Route::post('setAvailability', [AppointmentController::class, 'setAvailability']);
                         Route::post('updateStatus/{id}', [AppointmentController::class, 'updateStatus']);
                         Route::post('reschedule/{id}', [AppointmentController::class, 'reschedule']);
+                        Route::post('uploadDocument', [AppointmentController::class, 'uploadDocument']);
 
                         Route::group(['prefix' => '/notes', 'as' => 'notes.'], function () {
                             Route::get('list/{appointment}', [AppointmentNoteController::class, 'index']);

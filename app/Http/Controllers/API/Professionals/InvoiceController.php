@@ -560,11 +560,14 @@ class InvoiceController extends Controller
                 'message' => 'Invoice not found.',
             ], 200);
         }
-
-        return response()->json([
+        $delete =  $invoice->delete();
+        if($delete){
+            return response()->json([
             'status' => true,
             'message'   => 'Invoice deleted',
         ], 200);
+        }
+     
     }
 
 }

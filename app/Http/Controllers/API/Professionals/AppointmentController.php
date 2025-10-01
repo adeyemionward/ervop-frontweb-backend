@@ -18,9 +18,10 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-
+use App\Traits\HandleUploadDocuments;
 class AppointmentController extends Controller
 {
+    use HandleUploadDocuments;
     public function index()
     {
         $user = Auth::user();
@@ -186,106 +187,108 @@ class AppointmentController extends Controller
     //     }
     // }
 
- public function show(Appointment $appointment)
-{
-    try {
-        // 1. Authorization
-        if ($appointment->user_id !== Auth::id()) {
-            return response()->json([
-                'message' => 'Unauthorized',
-                'status'  => false,
-            ], 403);
-        }
+    public function show(Appointment $appointment)
+    {
+        try {
+            // 1. Authorization
+            if ($appointment->user_id !== Auth::id()) {
+                return response()->json([
+                    'message' => 'Unauthorized',
+                    'status'  => false,
+                ], 403);
+            }
 
-        // 2. Eager-load relationships
-        $appointment->load([
-            'service:id,name',
-            'customer:id,firstname,lastname,email,phone',
-            'notesHistory:id,appointment_id,content,created_at',
-            'invoices.items',
-            'invoices.payments',
-            'documents.files',
-        ]);
+            // 2. Eager-load relationships
+            $appointment->load([
+                'service:id,name',
+                'customer:id,firstname,lastname,email,phone',
+                // 'notesHistory:id,appointment_id,content,created_at',
+                'notesHistory.user:id,firstname,lastname',
+                'invoices.items',
+                'invoices.payments',
+                'documents.files',
+            ]);
 
-        // 3. Format response
-        $data = [
-            'id'                => $appointment->id,
-            'user_id'           => $appointment->user_id,
-            'contact_id'        => $appointment->contact_id,
-            'service_id'        => $appointment->service_id,
-            'date'              => $appointment->date,
-            'time'              => $appointment->time,
-            'appointment_status'=> $appointment->appointment_status,
-            'notesHistory' => $appointment->notesHistory ? $appointment->notesHistory->map(function ($note) {
+            // 3. Format response
+            $data = [
+                'id'                => $appointment->id,
+                'user_id'           => $appointment->user_id,
+                'contact_id'        => $appointment->contact_id,
+                'service_id'        => $appointment->service_id,
+                'date'              => $appointment->date,
+                'time'              => $appointment->time,
+                'amount'            => $appointment->amount,
+                'appointment_status'=> $appointment->appointment_status,
+                'notesHistory' => $appointment->notesHistory ? $appointment->notesHistory->map(function ($note) {
+            return [
+                'id'             => $note->id,
+                'appointment_id' => $note->appointment_id,
+                'content'        => $note->content,
+                'author'         => $note->user->firstname . ' ' . $note->user->lastname ?? 'Unknown', // ✅ include user firstname
+                'created_at'     => $note->created_at,
+            ];
+        }) : [],
+
+                'created_at'        => $appointment->created_at,
+                'updated_at'        => $appointment->updated_at,
+                'service'           => $appointment->service,
+                'customer'          => $appointment->customer,
+                'invoices'          => $appointment->invoices ? $appointment->invoices->map(function ($invoice) {
                     return [
-                        'id'             => $note->id,
-                        'appointment_id' => $note->appointment_id,
-                        'content'        => $note->content,
-                        'created_at'     => $note->created_at,
+                        'id'                  => $invoice->id,
+                        'user_id'             => $invoice->user_id,
+                        'contact_id'          => $invoice->contact_id,
+                        'project_id'          => $invoice->project_id,
+                        'appointment_id'      => $invoice->appointment_id,
+                        'invoice_no'          => $invoice->invoice_no,
+                        'invoice_type'        => $invoice->invoice_type,
+                        'issue_date'          => $invoice->issue_date,
+                        'due_date'            => $invoice->due_date,
+                        'subtotal'            => $invoice->subtotal,
+                        'tax_percentage'      => $invoice->tax_percentage,
+                        'discount_percentage' => $invoice->discount_percentage,
+                        'tax_amount'          => $invoice->tax_amount,
+                        'discount'            => $invoice->discount,
+                        'total'               => $invoice->total,
+                        'remaining_balance'   => $invoice->remaining_balance,
+                        'notes'               => $invoice->notes,
+                        'created_at'          => $invoice->created_at,
+                        'updated_at'          => $invoice->updated_at,
+                        'items'               => $invoice->items,
+                        'payments'            => $invoice->payments,
                     ];
                 })
-                : [],
+                :[],
+                'documents' => $appointment->documents ? $appointment->documents->map(function ($doc) {
+                    return [
+                        'id'           => $doc->id,
+                        'user_id'      => $doc->user_id,
+                        'contact_id'   => $doc->contact_id,
+                        'project_id'   => $doc->project_id,
+                        'appointment_id'=> $doc->appointment_id,
+                        'title'        => $doc->title,
+                        'tags'         => $doc->tags,
+                        'created_at'   => $doc->created_at,
+                        'updated_at'   => $doc->updated_at,
+                        'files'        => $doc->files,
+                    ];
+                })
+                :[],
+            ];
 
-            'created_at'        => $appointment->created_at,
-            'updated_at'        => $appointment->updated_at,
-            'service'           => $appointment->service,
-            'customer'          => $appointment->customer,
-            'invoices'          => $appointment->invoices ? $appointment->invoices->map(function ($invoice) {
-                return [
-                    'id'                  => $invoice->id,
-                    'user_id'             => $invoice->user_id,
-                    'contact_id'          => $invoice->contact_id,
-                    'project_id'          => $invoice->project_id,
-                    'appointment_id'      => $invoice->appointment_id,
-                    'invoice_no'          => $invoice->invoice_no,
-                    'invoice_type'        => $invoice->invoice_type,
-                    'issue_date'          => $invoice->issue_date,
-                    'due_date'            => $invoice->due_date,
-                    'subtotal'            => $invoice->subtotal,
-                    'tax_percentage'      => $invoice->tax_percentage,
-                    'discount_percentage' => $invoice->discount_percentage,
-                    'tax_amount'          => $invoice->tax_amount,
-                    'discount'            => $invoice->discount,
-                    'total'               => $invoice->total,
-                    'remaining_balance'   => $invoice->remaining_balance,
-                    'notes'               => $invoice->notes,
-                    'created_at'          => $invoice->created_at,
-                    'updated_at'          => $invoice->updated_at,
-                    'items'               => $invoice->items,
-                    'payments'            => $invoice->payments,
-                ];
-            })
-            :[],
-            'documents' => $appointment->documents ? $appointment->documents->map(function ($doc) {
-                return [
-                    'id'           => $doc->id,
-                    'user_id'      => $doc->user_id,
-                    'contact_id'   => $doc->contact_id,
-                    'project_id'   => $doc->project_id,
-                    'appointment_id'=> $doc->appointment_id,
-                    'title'        => $doc->title,
-                    'tags'         => $doc->tags,
-                    'created_at'   => $doc->created_at,
-                    'updated_at'   => $doc->updated_at,
-                    'files'        => $doc->files,
-                ];
-            })
-            :[],
-        ];
+            return response()->json([
+                'status' => true,
+                'data'   => $data,
+            ], 200);
 
-        return response()->json([
-            'status' => true,
-            'data'   => $data,
-        ], 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Error occurred',
-            'status'  => false,
-            'error'   => $e->getMessage(),
-        ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred',
+                'status'  => false,
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
     }
-}
 
 
 
@@ -519,5 +522,12 @@ class AppointmentController extends Controller
             'message' => 'Appointment rescheduled successfully.',
             'data' => $appointment,
         ], 200);
+    }
+
+   
+
+    public function uploadDocument(Request $request)
+    {
+        return $this->handleDocumentStore($request);
     }
 }
