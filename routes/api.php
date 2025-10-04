@@ -15,6 +15,12 @@ use App\Http\Controllers\API\Professionals\InvoicePaymentController;
 use App\Http\Controllers\API\Professionals\ProjectController;
 use App\Http\Controllers\API\Professionals\ServiceController;
 use App\Http\Controllers\API\Professionals\TransactionController;
+use App\Http\Controllers\API\Professionals\Settings\AccountSettingController;
+use App\Http\Controllers\API\Professionals\Settings\BusinessLocationSettingController;
+use App\Http\Controllers\API\Professionals\Settings\BusinessProfileSettingController;
+use App\Http\Controllers\API\Professionals\Settings\NotificationSettingController;
+use App\Http\Controllers\API\Professionals\Settings\ProfileSettingController;
+use App\Http\Controllers\API\Professionals\Settings\BusinessLogoController;
 
     Route::group(['middleware' => 'cors'], function ()
     {
@@ -125,6 +131,15 @@ use App\Http\Controllers\API\Professionals\TransactionController;
                         Route::get('viewFormSubmissions/{submission}', [FormSubmissionController::class, 'viewFormSubmissions']);
                         Route::put('updateFormSubmissions/{submission}', [FormSubmissionController::class, 'updateFormSubmissions']);
                         Route::delete('delete/{id}', [FormController::class, 'delete']);
+                    });
+
+                    Route::group(['prefix' => '/settings', 'as' => 'settings.'], function () {
+                        Route::put('profile/update', [ProfileSettingController::class, 'update']);
+                        Route::put('businessProfile/update', [BusinessProfileSettingController::class, 'update']);
+                        Route::put('location/update', [BusinessLocationSettingController::class, 'update']);
+                        Route::post('logo/update', [BusinessLogoController::class, 'update']);
+                        Route::put('notification/update', [NotificationSettingController::class, 'update']);
+                        Route::put('account/update', [AccountSettingController::class, 'update']);
                     });
                 });
             });

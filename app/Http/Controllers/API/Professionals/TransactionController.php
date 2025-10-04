@@ -22,7 +22,7 @@ class TransactionController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'type' => 'required|in:income,expense',
+            'type' => 'required|in:income,expense,disbursement',
             'amount' => 'required_if:type,income|numeric|min:0',
             // 'notes' => 'required',
             'invoice_id' => 'nullable|exists:invoices,id',
@@ -64,9 +64,9 @@ class TransactionController extends Controller
                 'appointment_id' => $validatedData['appointment_id'] ?? null,
                 'title' => $validatedData['title'] ?? null,
 
-            ];
+            ]; 
 
-            if ($validatedData['type'] === 'income') {
+            if ($validatedData['type'] === 'income' || $validatedData['type'] === 'disbursement' ) {
                 $data['amount'] = $validatedData['amount'];
                 $data['invoice_id'] = $validatedData['invoice_id'] ?? null;
                 $transaction = Transaction::create($data);
@@ -93,7 +93,7 @@ class TransactionController extends Controller
         $transaction = Transaction::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'type' => 'required|in:income,expense',
+            'type' => 'required|in:income,expense, disbursement',
             'amount' => 'required_if:type,income|numeric|min:0',
             'invoice_id' => 'nullable|exists:invoices,id',
 
@@ -167,7 +167,7 @@ class TransactionController extends Controller
         }
 
         // Structure response differently based on type
-        if ($transaction->type === 'income') {
+        if ($transaction->type === 'income' || $transaction->type === 'disbursement') {
             return response()->json([
                 'id' => $transaction->id,
                 'type' => $transaction->type,
