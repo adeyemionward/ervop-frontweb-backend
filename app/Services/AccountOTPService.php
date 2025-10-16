@@ -1,7 +1,7 @@
 <?php
     namespace App\Services;
 
-use App\Enum\UserType;
+use App\Enum\UserStatus;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -51,7 +51,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
                 $otpEntry->update(
                     [
                         'is_verified' => true,
-                        'status' => UserType::Active,
+                        'status' => UserStatus::Active,
                         'verification_token'=>null,
                         'verification_token_expires_at'=> null
                     ]

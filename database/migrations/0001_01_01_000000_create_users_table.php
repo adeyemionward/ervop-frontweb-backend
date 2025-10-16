@@ -16,14 +16,14 @@ return new class extends Migration
             $table->string('firstname');
             $table->string('lastname');
             $table->string('business_type')->nullable();
-            $table->string('business_name')->unique();
+            $table->string('business_name')->unique()->nullable();
             $table->string('business_industry')->nullable();
-            $table->string('ervop_url')->unique();
+            $table->string('ervop_url')->unique()->nullable();
             $table->string('website')->unique()->nullable();
 
             $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('phone')->unique();
+            $table->string('phone')->unique()->nullable();
             $table->timestamp('phone_verified_at')->nullable();
 
             $table->string('password');

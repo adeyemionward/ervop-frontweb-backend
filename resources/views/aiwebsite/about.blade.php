@@ -24,20 +24,47 @@
 <body class="bg-white text-gray-800">
 
     <!-- Header -->
-    <header class="sticky top-0 bg-white/90 backdrop-blur-md z-50 border-b border-gray-200">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-900">Aisha Bello</h1>
-            <nav class="hidden md:flex items-center space-x-8">
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Home</a>
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Shop</a>
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Services</a>
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Portfolio</a>
-                <a href="#" class="text-blue-600 hover:text-blue-600 font-semibold transition-colors">About</a>
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Contact</a>
+     <header class="sticky top-0 bg-white/70 backdrop-blur-md z-50 border-b border-gray-200">
+        <div class="bg-white/50 shadow-lg border border-gray-200/80">
+            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-900">Adeyemi's</h1>
+                <nav class="hidden lg:flex items-center space-x-8">
+                   <a href="{{ route('home', ['username' => $client_user->ervop_url]) }}" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Home</a>
+                    <a href="{{ route('about', ['username' => $client_user->ervop_url]) }}" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">About</a>
+                    <a href="{{ route('services', ['username' => $client_user->ervop_url]) }}" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Services</a>
+
+                    <a href="portfolio.html" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Portfolio</a>
+                    <a href="faq.html" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Faq</a>
+                    <a href="contact.html" class="text-gray-600 hover:text-orange-500 font-medium transition-colors">Contact</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-5 rounded-lg transition-colors hidden md:flex">
+                        Book Appointment
+                    </a>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-button" class="lg:hidden text-gray-500 hover:text-orange-500">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden lg:hidden mt-2 rounded-2xl bg-white/95 backdrop-blur-md shadow-lg border border-gray-200/80">
+            <nav class="flex flex-col p-4 space-y-2">
+                <a href="{{ route('home', ['username' => session('client_username')]) }}" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">Home</a>
+                <a href="{{ route('about', ['username' => session('client_username')]) }}" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">About</a>
+                <a href="{{ route('services', ['username' => session('client_username')]) }}" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">Services</a>
+
+                <a href="portfolio.html" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">Portfolio</a>
+                <a href="faq.html" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">Faq</a>
+                <a href="contact.html" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">Contact</a>
+
+                <a href="#" class="bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-5 rounded-lg transition-colors md:flex">
+                    Book Appointment
+                </a>
             </nav>
-            <a href="#" class="bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-5 rounded-lg transition-colors hidden md:flex">
-                Book a Consultation
-            </a>
+
         </div>
     </header>
 
@@ -51,7 +78,7 @@
                     About Us
                 </h1>
                 <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-gray-200">
-                    A comprehensive, one-on-one session to develop a clear roadmap for your business's success.
+                    {{ data_get($aboutContent, 'about_hero.about.about_hero.headline') }}
                 </p>
             </div>
         </section>
@@ -65,18 +92,22 @@
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">ABOUT US</span>
                         </div>
-                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-4">Empowering the Next Generation of Nigerian Entrepreneurs</h2>
-                        <p class="mt-3 text-lg text-gray-600"> Ervop was born from a simple observation: millions of talented Nigerian entrepreneurs are running their businesses on a chaotic mix of social media DMs, notebooks, and personal bank accounts. We built this platform to provide the structure, tools, and professional image they need to turn their hustle into a scalable business.</p>
+                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mt-4">
+                            {{ data_get($aboutContent, 'our_story.about.our_story.headline') }}
+                        </h2>
+                        <p class="mt-3 text-lg text-gray-600">
+                            {{ data_get($aboutContent, 'our_story.about.our_story.about_us') }}
+                        </p>
                         <div class="mt-8 space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8 items-center">
                                 <div class="md:col-span-3 ">
                                     <div class="flex space-x-8">
                                         <div>
-                                            <p class="text-4xl font-bold text-blue-600">10+</p>
+                                            <p class="text-4xl font-bold text-blue-600">{{ data_get($aboutContent, 'our_story.about.our_story.yoe') }}+</p>
                                             <p class="text-gray-500 mt-1">Years of Experience</p>
                                         </div>
                                         <div>
-                                            <p class="text-4xl font-bold text-blue-600">1,000+</p>
+                                            <p class="text-4xl font-bold text-blue-600">{{ data_get($aboutContent, 'our_story.about.our_story.customers_served') }}+</p>
                                             <p class="text-gray-500 mt-1">Businesses Empowered</p>
                                         </div>
 
@@ -84,7 +115,7 @@
                                     <!-- NEW: CTA Button Added Here -->
                                     <div class="mt-8">
                                         <a href="#" class="bg-blue-600 text-white hover:bg-blue-700 font-semibold py-3 px-6 rounded-lg transition-colors shadow-sm">
-                                            Explore More 
+                                            Explore More
                                         </a>
                                     </div>
                                 </div>
@@ -105,12 +136,16 @@
                 <div class="bg-white p-8 rounded-xl border border-gray-200">
                     <i data-lucide="gem" class="w-10 h-10 text-blue-600"></i>
                     <h3 class="mt-5 text-2xl font-bold text-gray-900">Our Mission</h3>
-                    <p class="mt-3 text-gray-600">To empower local artisans and showcase the richness of African design on a global stage through high-quality products and services.</p>
+                    <p class="mt-3 text-gray-600">
+                        {{ data_get($aboutContent, 'mission.about.mission.mission') }}
+                    </p>
                 </div>
                 <div class="bg-white p-8 rounded-xl border border-gray-200">
                     <i data-lucide="eye" class="w-10 h-10 text-blue-600"></i>
                     <h3 class="mt-5 text-2xl font-bold text-gray-900">Our Vision</h3>
-                    <p class="mt-3 text-gray-600">To be the leading global destination for authentic, contemporary African design and creative consulting.</p>
+                    <p class="mt-3 text-gray-600">
+                        {{ data_get($aboutContent, 'vision.about.vision.vision') }}
+                    </p>
                 </div>
             </div>
         </section>

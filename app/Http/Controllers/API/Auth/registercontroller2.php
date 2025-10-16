@@ -24,104 +24,209 @@ class RegistrationController extends Controller
     {
         $this->deepSeekService = $deepSeekService;
     }
+    // public function register(Request $request)
+    // {
+    //     // Validate the request data
+
+    //     $validator = Validator::make($request->all(), [
+    //         'firstName' => ['required', 'string', 'max:255'],
+    //         'lastName' => ['required', 'string', 'max:255'],
+    //         'businessType' => ['required', 'string', Rule::in(BusinessType::values())],
+    //         'businessName' => ['required', 'string', 'max:255', 'unique:users,business_name'],
+    //         'industry' => ['required', 'string', 'max:255'],
+    //         'ervopUrl' => ['required', 'string', 'unique:users,ervop_url'],
+    //         'currency' => ['required', 'string'],
+    //         'businessDescription' => ['required', 'string', 'max:400'],
+    //         'email' => ['required_if:business_type,professional,hybrid', 'nullable', 'email', 'unique:users,email'],
+    //         'phone' => ['required', 'string', 'max:15', 'unique:users,phone'],
+    //         'password' => ['required', 'string', 'min:8'],
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'message' => 'Validation failed',
+    //             'status'=>false,
+    //             'errors' => $validator->errors()
+    //         ], 422);
+    //     }
+
+
+    //     try {
+    //         DB::beginTransaction();
+    //         // Create the user
+    //         $user = new User([
+    //             'firstname' => $request->input('firstName'),
+    //             'lastname' => $request->input('lastName'),
+    //             'business_type' => $request->input('businessType'),
+    //             'business_name' => $request->input('businessName'),
+    //             'business_industry' => $request->input('industry'),
+    //             'ervop_url' => $request->input('ervopUrl'),
+    //             'currency' => $request->input('currency'),
+    //             'business_description' => $request->input('businessDescription'),
+    //             'website' => $request->input('website'),
+    //             'email' => $request->input('email'),
+    //             'phone' => $request->input('phone'),
+    //             'password' => bcrypt($request->input('password')),
+    //         ]);
+    //         $user->save();
+
+    //         Log::info("User created successfully. ID: {$user->id}");
+
+    //         // ✅ GENERATE AI WEBSITE CONTENT IMMEDIATELY AFTER USER CREATION
+    //         try {
+    //             Log::info("Starting AI content generation for user: {$user->id}");
+
+    //             $websiteContent = $this->deepSeekService->generateAndStoreBusinessContent(
+    //                 $user->id,
+    //                 $user->business_name,
+    //                 $user->business_industry,
+    //                 $user->business_description,
+    //                 $user->currency
+    //             );
+
+    //             $websiteGenerated = !empty($websiteContent);
+    //             Log::info("AI content generation completed. Success: " . ($websiteGenerated ? 'YES' : 'NO'));
+
+    //             if ($websiteGenerated) {
+    //                 Log::info("Generated pages: " . implode(', ', array_keys($websiteContent)));
+    //             } else {
+    //                 Log::warning("AI content generation returned empty result");
+    //             }
+
+    //         } catch (\Exception $aiException) {
+    //             Log::error("AI content generation failed: " . $aiException->getMessage());
+    //             Log::error("AI Exception: " . $aiException->getTraceAsString());
+    //             $websiteGenerated = false;
+    //         }
+
+    //         // Send OTP to email
+    //         $this->sendEmailOTP($request->email);
+
+    //         return response()->json([
+    //             'message' => 'User created successfully' . ($websiteGenerated ? ' and website content generated' : ' (website content generation skipped)'),
+    //             'status' => true,
+    //             'user' => $user,
+    //             'website_generated' => $websiteGenerated,
+    //         ], 201);
+
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+            
+    //         Log::error('User registration failed: ' . $e->getMessage());
+    //         Log::error('Registration Exception: ' . $e->getTraceAsString());
+
+    //         return response()->json([
+    //             'message' => 'User registration failed',
+    //             'status' => false,
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function register(Request $request)
-    {
-        // Validate the request data
+{
+    // Validate the request data
+    $validator = Validator::make($request->all(), [
+        'firstName' => ['required', 'string', 'max:255'],
+        'lastName' => ['required', 'string', 'max:255'],
+        'businessType' => ['required', 'string', Rule::in(BusinessType::values())],
+        'businessName' => ['required', 'string', 'max:255', 'unique:users,business_name'],
+        'industry' => ['required', 'string', 'max:255'],
+        'ervopUrl' => ['required', 'string', 'unique:users,ervop_url'],
+        'currency' => ['required', 'string'],
+        'businessDescription' => ['required', 'string', 'max:400'],
+        'email' => ['required_if:business_type,professional,hybrid', 'nullable', 'email', 'unique:users,email'],
+        'phone' => ['required', 'string', 'max:15', 'unique:users,phone'],
+        'password' => ['required', 'string', 'min:8'],
+    ]);
 
-        $validator = Validator::make($request->all(), [
-            'firstName' => ['required', 'string', 'max:255'],
-            'lastName' => ['required', 'string', 'max:255'],
-            'businessType' => ['required', 'string', Rule::in(BusinessType::values())],
-            'businessName' => ['required', 'string', 'max:255', 'unique:users,business_name'],
-            'industry' => ['required', 'string', 'max:255'],
-            'ervopUrl' => ['required', 'string', 'unique:users,ervop_url'],
-            'currency' => ['required', 'string'],
-            'businessDescription' => ['required', 'string', 'max:400'],
-            'email' => ['required_if:business_type,professional,hybrid', 'nullable', 'email', 'unique:users,email'],
-            'phone' => ['required', 'string', 'max:15', 'unique:users,phone'],
-            'password' => ['required', 'string', 'min:8'],
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'status' => false,
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        DB::beginTransaction();
+
+        // Create the user
+        $user = new User([
+            'firstname' => $request->input('firstName'),
+            'lastname' => $request->input('lastName'),
+            'business_type' => $request->input('businessType'),
+            'business_name' => $request->input('businessName'),
+            'business_industry' => $request->input('industry'),
+            'ervop_url' => $request->input('ervopUrl'),
+            'currency' => $request->input('currency'),
+            'business_description' => $request->input('businessDescription'),
+            'website' => $request->input('website'),
+            'email' => $request->input('email'),
+            'phone' => $request->input('phone'),
+            'password' => bcrypt($request->input('password')),
         ]);
+        $user->save();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'status'=>false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        Log::info("✅ User created successfully. ID: {$user->id}");
 
-
+        // ✅ Try AI website content generation immediately
         try {
-            // DB::beginTransaction();
-            // Create the user
-            $user = new User([
-                'firstname' => $request->input('firstName'),
-                'lastname' => $request->input('lastName'),
-                'business_type' => $request->input('businessType'),
-                'business_name' => $request->input('businessName'),
-                'business_industry' => $request->input('industry'),
-                'ervop_url' => $request->input('ervopUrl'),
-                'currency' => $request->input('currency'),
-                'business_description' => $request->input('businessDescription'),
-                'website' => $request->input('website'),
-                'email' => $request->input('email'),
-                'phone' => $request->input('phone'),
-                'password' => bcrypt($request->input('password')),
-            ]);
-            $user->save();
+            Log::info("Starting immediate AI content generation for user: {$user->id}");
 
-            Log::info("User created successfully. ID: {$user->id}");
+            $websiteContent = $this->deepSeekService->generateAndStoreBusinessContent(
+                $user->id,
+                $user->business_name,
+                $user->business_industry,
+                $user->business_description,
+                $user->currency
+            );
 
-            // ✅ GENERATE AI WEBSITE CONTENT IMMEDIATELY AFTER USER CREATION
-            try {
-                Log::info("Starting AI content generation for user: {$user->id}");
+            $websiteGenerated = !empty($websiteContent);
+            Log::info("AI content generation completed. Success: " . ($websiteGenerated ? 'YES' : 'NO'));
 
-                $websiteContent = $this->deepSeekService->generateAndStoreBusinessContent(
-                    $user->id,
-                    $user->business_name,
-                    $user->business_industry,
-                    $user->business_description,
-                    $user->currency
-                );
-
-                $websiteGenerated = !empty($websiteContent);
-                Log::info("AI content generation completed. Success: " . ($websiteGenerated ? 'YES' : 'NO'));
-
-                if ($websiteGenerated) {
-                    Log::info("Generated pages: " . implode(', ', array_keys($websiteContent)));
-                } else {
-                    Log::warning("AI content generation returned empty result");
-                }
-
-            } catch (\Exception $aiException) {
-                Log::error("AI content generation failed: " . $aiException->getMessage());
-                Log::error("AI Exception: " . $aiException->getTraceAsString());
-                $websiteGenerated = false;
+            if ($websiteGenerated) {
+                Log::info("Generated pages: " . implode(', ', array_keys($websiteContent)));
+            } else {
+                Log::warning("AI content generation returned empty result");
             }
 
-            // Send OTP to email
-            $this->sendEmailOTP($request->email);
-
-            return response()->json([
-                'message' => 'User created successfully' . ($websiteGenerated ? ' and website content generated' : ' (website content generation skipped)'),
-                'status' => true,
-                'user' => $user,
-                'website_generated' => $websiteGenerated,
-            ], 201);
-
         } catch (\Exception $e) {
-            // DB::rollBack();
-            
-            Log::error('User registration failed: ' . $e->getMessage());
-            Log::error('Registration Exception: ' . $e->getTraceAsString());
+            Log::error("❌ Immediate AI content generation failed: " . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
-            return response()->json([
-                'message' => 'User registration failed',
-                'status' => false,
-                'error' => $e->getMessage()
-            ], 500);
+            // ✅ Schedule retry in 5 minutes
+            Log::warning("Queuing website content generation retry for user: {$user->id}");
+            \App\Jobs\GenerateAIWebsiteContent::dispatch($user)->delay(now()->addMinutes(5));
+
+            $websiteGenerated = false;
         }
+
+        // Send OTP to email
+        $this->sendEmailOTP($request->email);
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'User created successfully' . ($websiteGenerated ? ' and website content generated' : ' (AI content generation queued)'),
+            'status' => true,
+            'user' => $user,
+            'website_generated' => $websiteGenerated,
+        ], 201);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('❌ User registration failed: ' . $e->getMessage());
+        Log::error($e->getTraceAsString());
+
+        return response()->json([
+            'message' => 'User registration failed',
+            'status' => false,
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 
     public function secondStepValidation()
     {

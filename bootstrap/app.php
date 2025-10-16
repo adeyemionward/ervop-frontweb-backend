@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\DetectClientSubdomain;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,8 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'cors' => \App\Http\Middleware\CorsMiddleware::class,
             'jwt' => \App\Http\Middleware\JWTMiddleware::class,
+             'checkSubdomain' => DetectClientSubdomain::class,
         ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         // Force JSON for API routes
         $exceptions->shouldRenderJsonWhen(function ($request, $e) {

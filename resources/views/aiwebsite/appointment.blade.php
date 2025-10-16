@@ -24,16 +24,16 @@
             grid-template-columns: repeat(7, minmax(0, 1fr));
         }
         .day-active {
-            background-color: #2563eb !important; /* bg-blue-600 */
+            background-color: #9a52f8 !important; /* bg-purple-600 */
             color: white !important;
             font-weight: bold;
         }
         .service-active, .time-slot-active {
-             background-color: #eff6ff !important; /* bg-blue-50 */
-             border-color: #2563eb !important; /* border-blue-600 */
+             background-color: #eff6ff !important; /* bg-purple-50 */
+             border-color: #9a52f8 !important; /* border-purple-600 */
         }
         .service-active p {
-            color: #1e40af; /* text-blue-800 */
+            color: #9a52f8; /* text-purple-800 */
         }
     </style>
 </head>
@@ -44,11 +44,11 @@
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-gray-900">Aisha Bello</h1>
             <nav class="hidden md:flex items-center space-x-8">
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Home</a>
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Shop</a>
-                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Services</a>
+                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium transition-colors">Home</a>
+                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium transition-colors">Shop</a>
+                <a href="#" class="text-gray-600 hover:text-purple-600 font-medium transition-colors">Services</a>
             </nav>
-            <a href="#" class="bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2 px-5 rounded-lg transition-colors hidden md:flex">
+            <a href="#" class="bg-purple-600 text-white hover:bg-purple-700 font-semibold py-2 px-5 rounded-lg transition-colors hidden md:flex">
                 Book a Consultation
             </a>
         </div>
@@ -59,7 +59,7 @@
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-12">
                 <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-                    Schedule Your Consultation
+                    Schedule Your Appointment
                 </h1>
                 <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
                     Let's connect. Choose a service and select a time that works best for you.
@@ -68,18 +68,18 @@
 
             <div class="bg-white p-8 rounded-xl border border-gray-200 shadow-lg">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    
+
                     <!-- Left Column: Service Selection -->
                     <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-gray-200 pb-8 md:pb-0 md:pr-8">
-                        <h2 class="text-xl font-bold text-gray-900">1. Select a Service</h2>
+                        <h2 class="text-xl font-bold text-gray-900">1. Select Purpose</h2>
                         <div class="mt-6 space-y-4">
-                            <div id="service-free" class="service-option p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer service-active">
-                                <p class="font-semibold text-blue-800">Free Discovery Call</p>
-                                <p class="text-sm text-blue-700 mt-1">30 minutes</p>
+                            <div id="service-free" class="service-option p-4 border-2 border-purple-500 bg-purple-50 rounded-lg cursor-pointer service-active">
+                                <p class="font-semibold text-purple-800">Free Discovery Call</p>
+                                <p class="text-sm text-purple-700 mt-1">1 hour</p>
                             </div>
-                            <div id="service-paid" class="service-option p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
-                                <p class="font-semibold text-gray-800">Styling Consultation</p>
-                                <p class="text-sm text-gray-600 mt-1">1 hour - ₦25,000</p>
+                            <div id="service-paid" class="service-option p-4 border border-gray-300 rounded-lg cursor-pointer hover:border-purple-500">
+                                <p class="font-semibold text-gray-800">Follow-up Meeting</p>
+                                <p class="text-sm text-gray-600 mt-1">1 hour</p>
                             </div>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                     <!-- Right Column: Calendar & Time -->
                     <div class="md:col-span-2">
                         <h2 class="text-xl font-bold text-gray-900">2. Choose a Date & Time</h2>
-                        
+
                         <!-- Interactive Calendar -->
                         <div class="mt-6">
                             <div class="flex justify-between items-center">
@@ -100,10 +100,10 @@
                                 <!-- Calendar days will be generated by JS -->
                             </div>
                         </div>
-                        
+
                         <!-- Time Slot Picker -->
                         <div id="time-slot-section" class="mt-6">
-                            <h3 class="font-semibold text-gray-800">Available Times for <span id="selected-date-text" class="text-blue-600">July 29, 2025</span></h3>
+                            <h3 class="font-semibold text-gray-800">Available Times for <span id="selected-date-text" class="text-purple-600">July 29, 2025</span></h3>
                             <div id="time-slots" class="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-3">
                                 <!-- Time slots will be generated by JS -->
                             </div>
@@ -114,7 +114,7 @@
                 <!-- Final Step: Details Form -->
                 <div class="mt-8 pt-8 border-t border-gray-200">
                     <h2 class="text-xl font-bold text-gray-900">3. Enter Your Details</h2>
-                    
+
                     <!-- Booking Summary -->
                     <div id="booking-summary" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-sm">
                         <!-- Summary will be generated by JS -->
@@ -123,22 +123,22 @@
                     <form class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input type="text" id="name" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <input type="text" id="name" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                            <input type="email" id="email" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <input type="email" id="email" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
                         </div>
                         <div class="md:col-span-2">
                              <label for="details" class="block text-sm font-medium text-gray-700">Please provide a brief description of your needs</label>
-                             <textarea id="details" rows="4" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+                             <textarea id="details" rows="4" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 sm:text-sm"></textarea>
                         </div>
                     </form>
                 </div>
-                
+
                 <!-- Confirmation Button -->
                 <div class="mt-8 flex justify-end">
-                    <button class="bg-blue-600 text-white hover:bg-blue-700 font-semibold py-3 px-8 rounded-lg text-lg transition-colors shadow-lg hover:shadow-xl">
+                    <button class="bg-purple-600 text-white hover:bg-purple-700 font-semibold py-3 px-8 rounded-lg text-lg transition-colors shadow-lg hover:shadow-xl">
                         Confirm Booking
                     </button>
                 </div>
@@ -187,7 +187,7 @@
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            
+
             monthYearTitle.textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
             const firstDayOfMonth = new Date(year, month, 1).getDay();
@@ -250,9 +250,9 @@
             } else {
                 slots.forEach(time => {
                     const button = document.createElement('button');
-                    button.className = 'time-slot-btn py-2 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors';
+                    button.className = 'time-slot-btn py-2 border border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors';
                     button.textContent = time;
-                    
+
                     button.addEventListener('click', () => {
                         document.querySelectorAll('.time-slot-btn').forEach(btn => btn.classList.remove('time-slot-active'));
                         button.classList.add('time-slot-active');
@@ -268,13 +268,13 @@
         // Service Selection Logic
         serviceOptions.forEach(option => {
             option.addEventListener('click', () => {
-                serviceOptions.forEach(opt => opt.classList.remove('service-active', 'border-blue-500', 'bg-blue-50'));
-                option.classList.add('service-active', 'border-blue-500', 'bg-blue-50');
+                serviceOptions.forEach(opt => opt.classList.remove('service-active', 'border-purple-500', 'bg-purple-50'));
+                option.classList.add('service-active', 'border-purple-500', 'bg-purple-50');
                 selectedService = option.querySelector('p').textContent;
                 updateBookingSummary();
             });
         });
-        
+
         // Month Navigation Logic
         prevMonthBtn.addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);

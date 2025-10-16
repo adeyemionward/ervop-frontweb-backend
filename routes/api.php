@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Professionals\AppointmentController;
 use App\Http\Controllers\API\Professionals\AppointmentNoteController;
 use App\Http\Controllers\API\Professionals\ContactController;
+use App\Http\Controllers\API\Professionals\CustomizationController;
 use App\Http\Controllers\API\Professionals\DocumentController;
 use App\Http\Controllers\API\Professionals\FormController;
 use App\Http\Controllers\API\Professionals\FormSubmissionController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\API\Professionals\Settings\BusinessProfileSettingContro
 use App\Http\Controllers\API\Professionals\Settings\NotificationSettingController;
 use App\Http\Controllers\API\Professionals\Settings\ProfileSettingController;
 use App\Http\Controllers\API\Professionals\Settings\BusinessLogoController;
+use App\Http\Controllers\API\Professionals\Settings\ChangePasswordController;
 
     Route::group(['middleware' => 'cors'], function ()
     {
@@ -133,15 +135,22 @@ use App\Http\Controllers\API\Professionals\Settings\BusinessLogoController;
                         Route::delete('delete/{id}', [FormController::class, 'delete']);
                     });
 
+                    Route::group(['prefix' => '/customizations', 'as' => 'customizations.'], function () {
+                        Route::get('content/{section}', [CustomizationController::class, 'getSection']);
+                        Route::get('content', [CustomizationController::class, 'getAllSections']);
+                    });
+
                     Route::group(['prefix' => '/settings', 'as' => 'settings.'], function () {
                         Route::put('profile/update', [ProfileSettingController::class, 'update']);
                         Route::put('businessProfile/update', [BusinessProfileSettingController::class, 'update']);
                         Route::put('location/update', [BusinessLocationSettingController::class, 'update']);
                         Route::post('logo/update', [BusinessLogoController::class, 'update']);
                         Route::put('notification/update', [NotificationSettingController::class, 'update']);
-                        Route::put('account/update', [AccountSettingController::class, 'update']);
+                        Route::put('password/update', [ChangePasswordController::class, 'update']);
+                        Route::put('account/delete', [AccountSettingController::class, 'destroy']);
                     });
                 });
             });
         });
     });
+
