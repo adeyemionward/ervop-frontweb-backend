@@ -54,6 +54,10 @@ class Appointment extends Model
         return $this->belongsTo(Service::class,'service_id');
     }
 
+    public function project(){
+        return $this->belongsTo(Service::class,'project_id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(Contact::class,'contact_id');

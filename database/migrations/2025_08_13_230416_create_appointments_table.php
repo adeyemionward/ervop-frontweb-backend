@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
+            $table->string('title')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('contact_id')->constrained('contacts');
-            $table->foreignId('service_id')->constrained('services');
+            $table->foreignId('service_id')->nullable()->constrained('services')->nullOnDelete();
+            $table->foreignId('project_id')->nullable()->constrained('projects')->onDelete('cascade');
             $table->string('date');
             $table->string('time');
+            $table->decimal('amount', 10, 2)->nullable();
             $table->string('appointment_status')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();

@@ -13,8 +13,6 @@ use App\Http\Resources\AppointmentResource;
 use App\Models\Availability;
 use App\Models\DateOverride;
 use App\Models\Document;
-use App\Models\Invoice;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +27,7 @@ class AppointmentController extends Controller
         try {
             $appointments = Appointment::with([
                 'service:id,name',
+                'project:id,name',
                 'customer:id,firstname,lastname,email,phone',
             ])->where('user_id', $user->id)->orderBy('id', 'DESC')->get();
 
@@ -115,19 +114,27 @@ class AppointmentController extends Controller
         // Validate the request data
 
         $validator = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:50'],
             'contact_id' => [
                 'required',
                 'integer',
                 // This rule checks if the contact_id exists in the 'contacts' table
                 Rule::exists('contacts', 'id'),
             ],
+            'project_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('projects', 'id'),
+            ],
+
             'service_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists('services', 'id'),
             ],
             'date' => ['required', 'string'],
             'time' => ['required', 'string'],
+            'amount' => ['nullable', 'numeric'],
             'notes' => ['nullable', 'string'],
         ]);
 
@@ -143,8 +150,10 @@ class AppointmentController extends Controller
             // Check if the user is authenticated
             // Create the user
             $appointment = new Appointment([
+                'title'         => $request->input('title'),
                 'user_id'       => Auth::user()->id,
                 'contact_id'    => $request->input('contact_id'),
+                'project_id'    => $request->input('project_id'),
                 'service_id'    => $request->input('service_id'),
                 'date'          => $request->input('date'),
                 'time'          => $request->input('time'),
@@ -162,30 +171,6 @@ class AppointmentController extends Controller
         }
     }
 
-    // public function show(Appointment $appointment)
-    // {
-    //     try {
-    //         // 1. Authorization: Ensure the authenticated user owns this appointment.
-    //         // This is the most important step for security.
-    //         if ($appointment->user_id !== Auth::id()) {
-    //             return response()->json(['message' => 'Unauthorized', 'status' => false], 403);
-    //         }
-
-    //         // 2. Eager-load the relationships for an efficient query.
-    //         // The main appointment model is already fetched by route-model binding.
-    //         $appointment->load(['service:id,name', 'customer:id,firstname,lastname,email,phone']);
-
-    //         // 3. Use a single resource for a single model, not a collection.
-    //         return response()->json([
-    //             'status' => true,
-    //             'data'   => new AppointmentResource($appointment),
-    //         ], 200);
-
-    //     } catch (\Exception $e) {
-    //         // This will catch errors if the model is not found or other issues occur.
-    //         return response()->json(['message' => 'Error occurred', 'status' => false, 'error' => $e->getMessage()], 500);
-    //     }
-    // }
 
     public function show(Appointment $appointment)
     {
@@ -290,7 +275,34 @@ class AppointmentController extends Controller
         }
     }
 
+    public function delete($id)
+    {
+        // Find the contact
+        $appointment = Appointment::find($id);
 
+        if (!$appointment) {
+            return response()->json([
+                'message' => 'Appointment not found',
+                'status' => false,
+            ], 200);
+        }
+
+        try {
+            $appointment->delete();
+
+            return response()->json([
+                'message' => 'Appointment deleted successfully',
+                'status' => true,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred',
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function createAppointmentDocs(Request $request){
 
@@ -524,7 +536,7 @@ class AppointmentController extends Controller
         ], 200);
     }
 
-   
+
 
     public function uploadDocument(Request $request)
     {

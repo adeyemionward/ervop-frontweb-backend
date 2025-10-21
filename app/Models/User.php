@@ -28,6 +28,7 @@ class User extends Authenticatable implements JWTSubject
         'business_type',
         'business_name',
         'business_industry',
+        'need_website',
         'business_description',
         'ervop_url',
         'website',

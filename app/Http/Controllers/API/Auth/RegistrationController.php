@@ -36,7 +36,8 @@ class RegistrationController extends Controller
             'industry' => ['required', 'string', 'max:255'],
             'ervopUrl' => ['required', 'string', 'unique:users,ervop_url'],
             'currency' => ['required', 'string'],
-            'businessDescription' => ['required', 'string', 'max:400'],
+            'needWebsite' => ['nullable', 'string'],
+            'businessDescription' => ['nullable', 'string', 'max:400'],
             'email' => ['required_if:business_type,professional,hybrid', 'nullable', 'email', 'unique:users,email'],
             'phone' => ['required', 'string', 'max:15', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:8'],
@@ -52,9 +53,8 @@ class RegistrationController extends Controller
 
 
         try {
-            // DB::beginTransaction();
             // Create the user
-            $user = new User([
+            $user = User::create([
                 'firstname' => $request->input('firstName'),
                 'lastname' => $request->input('lastName'),
                 'business_type' => $request->input('businessType'),
@@ -62,56 +62,61 @@ class RegistrationController extends Controller
                 'business_industry' => $request->input('industry'),
                 'ervop_url' => $request->input('ervopUrl'),
                 'currency' => $request->input('currency'),
+                'need_website' => $request->input('needWebsite'), // 'yes' or 'no'
                 'business_description' => $request->input('businessDescription'),
-                'website' => $request->input('website'),
+                'website' => $request->input('website'), // optional
                 'email' => $request->input('email'),
                 'phone' => $request->input('phone'),
                 'password' => bcrypt($request->input('password')),
             ]);
-            $user->save();
 
             Log::info("User created successfully. ID: {$user->id}");
 
-            // ✅ GENERATE AI WEBSITE CONTENT IMMEDIATELY AFTER USER CREATION
-            try {
-                Log::info("Starting AI content generation for user: {$user->id}");
+            $websiteGenerated = false;
 
-                $websiteContent = $this->deepSeekService->generateAndStoreBusinessContent(
-                    $user->id,
-                    $user->business_name,
-                    $user->business_industry,
-                    $user->business_description,
-                    $user->currency
-                );
+            // Generate AI website content only if the user requested a website
+            if ($request->input('needWebsite') == 'yes') {
+                try {
+                    //Log::info("Starting AI content generation for user: {$user->id}");
 
-                $websiteGenerated = !empty($websiteContent);
-                Log::info("AI content generation completed. Success: " . ($websiteGenerated ? 'YES' : 'NO'));
+                    // $websiteContent = $this->deepSeekService->generateAndStoreBusinessContent(
+                    //     $user->id,
+                    //     $user->business_name,
+                    //     $user->business_industry,
+                    //     $user->business_description,
+                    //     $user->currency
+                    // );
 
-                if ($websiteGenerated) {
-                    Log::info("Generated pages: " . implode(', ', array_keys($websiteContent)));
-                } else {
-                    Log::warning("AI content generation returned empty result");
+                    // $websiteGenerated = !empty($websiteContent);
+
+                    // Log::info("AI content generation completed. Success: " . ($websiteGenerated ? 'YES' : 'NO'));
+
+                    // if ($websiteGenerated) {
+                    //     Log::info("Generated pages: " . implode(', ', array_keys($websiteContent)));
+                    // } else {
+                    //     Log::warning("AI content generation returned empty result");
+                    // }
+
+                } catch (\Exception $aiException) {
+                    Log::error("AI content generation failed: " . $aiException->getMessage());
+                    Log::error("AI Exception: " . $aiException->getTraceAsString());
+                    // $websiteGenerated = false;
                 }
-
-            } catch (\Exception $aiException) {
-                Log::error("AI content generation failed: " . $aiException->getMessage());
-                Log::error("AI Exception: " . $aiException->getTraceAsString());
-                $websiteGenerated = false;
+            } else {
+                Log::info("User opted out of website creation.");
             }
 
             // Send OTP to email
-            $this->sendEmailOTP($request->email);
+            $this->sendEmailOTP($user->email);
 
             return response()->json([
-                'message' => 'User created successfully' . ($websiteGenerated ? ' and website content generated' : ' (website content generation skipped)'),
+                'message' => 'User created successfully' . ($websiteGenerated ? ' and website content generated' : ''),
                 'status' => true,
                 'user' => $user,
                 'website_generated' => $websiteGenerated,
             ], 201);
 
         } catch (\Exception $e) {
-            // DB::rollBack();
-            
             Log::error('User registration failed: ' . $e->getMessage());
             Log::error('Registration Exception: ' . $e->getTraceAsString());
 
@@ -120,7 +125,8 @@ class RegistrationController extends Controller
                 'status' => false,
                 'error' => $e->getMessage()
             ], 500);
-        }
+}
+
     }
 
     public function secondStepValidation()

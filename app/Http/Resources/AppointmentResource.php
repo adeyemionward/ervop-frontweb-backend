@@ -25,6 +25,9 @@ class AppointmentResource extends JsonResource
             'service_id' => $this->whenLoaded('service', fn() => $this->service->id),
             'service_name' => $this->whenLoaded('service', fn() => $this->service->name),
 
+            'project_id' => $this->whenLoaded('project', fn() => $this->project->id),
+            'project_title' => $this->whenLoaded('project', fn() => $this->project->title),
+
             // Flattened customer fields (checking if the relationship is loaded)
             'customer_id' => $this->whenLoaded('customer', fn() => $this->customer->id),
             'customer_firstname' => $this->whenLoaded('customer', fn() => $this->customer->firstname),
