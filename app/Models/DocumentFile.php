@@ -12,14 +12,13 @@ class DocumentFile extends Model
         'contact_id',
         'file_path',
         'file_type',
+        'status',
     ];
 
     public function document()
     {
         return $this->belongsTo(Document::class, 'document_id');
     }
-
-
 
     public function project()
     {

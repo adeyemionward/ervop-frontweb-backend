@@ -19,10 +19,12 @@ class DocumentFileResource extends JsonResource
             'contact_id' => $this->contact_id,
             'file_path' => $this->file_path,
             'file_type' => $this->file_type,
+            'document_status'    => $this->status,
 
             // ✅ Pull title from related document
             'document_id' => $this->document_id,
             'document_title' => $this->whenLoaded('document', fn() => $this->document->title),
+            'document_type' => $this->whenLoaded('document', fn() => $this->document->type),
 
             // Flattened project fields
             'project_id' => $this->whenLoaded('project', fn() => $this->project->id),

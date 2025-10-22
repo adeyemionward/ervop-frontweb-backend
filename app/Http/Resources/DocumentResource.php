@@ -18,7 +18,8 @@ class DocumentResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'document_path' => $this->start_date,
-            'tags' => $this->end_date,
+            'tags' => $this->tags,
+            'document_type' => $this->type,
 
             // Flattened project fields (checking if the relationship is loaded)
             'project_id' => $this->whenLoaded('project', fn() => $this->project->id),

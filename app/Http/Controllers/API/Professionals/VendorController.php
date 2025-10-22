@@ -3,27 +3,26 @@
 namespace App\Http\Controllers\API\Professionals;
 
 use App\Http\Controllers\Controller;
-use App\Models\Contact;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
-
-class ContactController extends Controller
+class VendorController extends Controller
 {
     public function index()
     {
         // Fetch all services for the authenticated user
         try {
-            $contact = Contact::where('user_id', Auth::id())->get();
-            if ($contact->isEmpty()) {
-                return response()->json(['message' => 'No contact found', 'status' => false], 200);
+            $Vendor = Vendor::where('user_id', Auth::id())->get();
+            if ($Vendor->isEmpty()) {
+                return response()->json(['message' => 'No Vendor found', 'status' => false], 200);
             }
 
             return response()->json([
                 'status' => true,
-                'data' => $contact,
+                'data' => $Vendor,
             ], 200);
 
         } catch (\Exception $e) {
@@ -40,7 +39,7 @@ class ContactController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:255', 'unique:contacts'],
+            'phone' => ['required', 'string', 'max:255', 'unique:Vendors'],
             'company' => ['nullable', 'string', 'max:255'],
             // 'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
             'tags' => ['nullable', 'string'],
@@ -57,7 +56,7 @@ class ContactController extends Controller
         try {
             // Check if the user is authenticated
             // Create the user
-            $contact = new Contact([
+            $Vendor = new Vendor([
                 'user_id'   => Auth::user()->id,
                 'firstname' => $request->input('firstname'),
                 'lastname'  => $request->input('lastname'),
@@ -67,12 +66,12 @@ class ContactController extends Controller
                 'status'    => 'active',
                 'tags'      => $request->input('tags'),
             ]);
-            $contact->save();
+            $Vendor->save();
             // You can customize the success response as needed
             return response()->json([
-                'message' => 'Contact created successfully',
+                'message' => 'Vendor created successfully',
                 'status' => true,
-                'data' => $contact,
+                'data' => $Vendor,
             ], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
@@ -83,14 +82,14 @@ class ContactController extends Controller
     {
 
         try {
-            $contact = Contact::where('user_id', Auth::id())->where('id', $id)->first();
-            if (is_null($contact)) {
-                return response()->json(['message' => 'No contact found', 'status' => false], 200);
+            $Vendor = Vendor::where('user_id', Auth::id())->where('id', $id)->first();
+            if (is_null($Vendor)) {
+                return response()->json(['message' => 'No Vendor found', 'status' => false], 200);
             }
 
             return response()->json([
                 'status' => true,
-                'client' => $contact,
+                'client' => $Vendor,
             ], 200);
 
         } catch (\Exception $e) {
@@ -102,12 +101,12 @@ class ContactController extends Controller
     public function update(Request $request, $id)
     {
 
-        // Find the contact
-        $contact = Contact::find($id);
+        // Find the Vendor
+        $Vendor = Vendor::find($id);
 
-        if (!$contact) {
+        if (!$Vendor) {
             return response()->json([
-                'message' => 'Contact not found',
+                'message' => 'Vendor not found',
                 'status' => false,
             ], 404);
         }
@@ -117,7 +116,7 @@ class ContactController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'lastname'  => ['required', 'string', 'max:255'],
             'email'     => ['nullable', 'string', 'email', 'max:255'],
-            'phone'     => ['required', 'string', 'max:255', Rule::unique('contacts')->ignore($contact->id)],
+            'phone'     => ['required', 'string', 'max:255', Rule::unique('Vendors')->ignore($Vendor->id)],
             'company'   => ['nullable', 'string', 'max:255'],
             'tags'      => ['nullable', 'string'],
             // 'status'    => ['nullable', 'in:active,inactive'], // optional if you allow status update
@@ -132,21 +131,21 @@ class ContactController extends Controller
         }
 
         try {
-            // Update contact fields
-            $contact->update([
+            // Update Vendor fields
+            $Vendor->update([
                 'firstname' => $request->input('firstname'),
                 'lastname'  => $request->input('lastname'),
                 'email'     => $request->input('email'),
                 'phone'     => $request->input('phone'),
                 'company'   => $request->input('company'),
                 'tags'      => $request->input('tags'),
-                // 'status'    => $request->input('status', $contact->status), // keep old if not provided
+                // 'status'    => $request->input('status', $Vendor->status), // keep old if not provided
             ]);
 
             return response()->json([
-                'message' => 'Contact updated successfully',
+                'message' => 'Vendor updated successfully',
                 'status' => true,
-                'data' => $contact,
+                'data' => $Vendor,
             ], 200);
 
         } catch (\Exception $e) {
@@ -160,21 +159,21 @@ class ContactController extends Controller
 
     public function delete($id)
     {
-        // Find the contact
-        $contact = Contact::find($id);
+        // Find the Vendor
+        $Vendor = Vendor::find($id);
 
-        if (!$contact) {
+        if (!$Vendor) {
             return response()->json([
-                'message' => 'Contact not found',
+                'message' => 'Vendor not found',
                 'status' => false,
             ], 404);
         }
 
         try {
-            $contact->delete();
+            $Vendor->delete();
 
             return response()->json([
-                'message' => 'Contact deleted successfully',
+                'message' => 'Vendor deleted successfully',
                 'status' => true,
             ], 200);
 
@@ -186,5 +185,4 @@ class ContactController extends Controller
             ], 500);
         }
     }
-
 }

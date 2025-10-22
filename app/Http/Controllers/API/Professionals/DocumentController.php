@@ -79,6 +79,12 @@ class DocumentController extends Controller
             'contact_id' => ['nullable'],
             'project_id' => ['nullable'],
             'title' => ['required', 'string'],
+            'type' => [
+                'required',
+                'string',
+                Rule::in(['Proposal', 'Contract', 'NDA', 'General']),
+            ],
+
             // 'business_docs' => ['required', 'file', 'mimes:jpeg,png,jpg,gif,svg,pdf', 'max:2048'],
             'tags' => ['nullable', 'string'],
 
@@ -92,9 +98,15 @@ class DocumentController extends Controller
             ], 422);
         }
 
+        $type = null;
+        if ($request->input('type') != 'General') {
+            $type = 'Sent';
+        }
+
         try {
             $document = Document::create([
                 'user_id'       => Auth::id(),
+                'type'          => $request->input('type'),
                 'contact_id'    => $request->input('contact_id') ?? NULL,
                 'project_id'    => $request->input('project_id') ?? NULL,
                 'appointment_id'=> $request->input('appointment_id') ?? NULL,
@@ -112,6 +124,7 @@ class DocumentController extends Controller
                         'contact_id'    => $request->input('contact_id') ?? NULL,
                         'file_path'     => config('app.url') . '/business_docs/' . $fileName,
                         'file_type'     => $file->getClientMimeType(),
+                        'status'        => $type,
                     ]);
                 }
             }
@@ -143,7 +156,7 @@ class DocumentController extends Controller
             if ($documentsFiles->isEmpty()) {
                 return response()->json(['message' => 'No document found', 'status' => false], 200);
             }
-
+                    
             return response()->json([
                 'status' => true,
                 'data' => DocumentFileResource::collection($documentsFiles),

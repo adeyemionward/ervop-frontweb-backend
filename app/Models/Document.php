@@ -12,6 +12,7 @@ class Document extends Model
         'project_id',
         'appointment_id',
         'title',
+        'type',
         'tags',
     ];
 
