@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('company')->nullable(); // nullable, string, max:255
             $table->string('photo')->nullable(); // nullable (assuming you're storing the filename as a string)
             $table->text('tags')->nullable(); // nullable, string (using 'text' to allow for longer strings, e.g., a comma-separated list of tags)
+            $table->string('status')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

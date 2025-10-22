@@ -38,10 +38,11 @@ class ContractorController extends Controller
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:255', 'unique:Contractors'],
+            'phone' => ['required', 'string', 'max:255', 'unique:Vendors'],
             'company' => ['nullable', 'string', 'max:255'],
-            // 'photo' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
-            'tags' => ['nullable', 'string'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'bank_name' => ['nullable', 'string', 'max:255'],
+            'account_number' => ['nullable', 'string', 'max:255'],
         ]);
 
         if ($validator->fails()) {
@@ -62,8 +63,10 @@ class ContractorController extends Controller
                 'email'     => $request->input('email'),
                 'phone'     => $request->input('phone'),
                 'company'   => $request->input('company'),
+                'address'   => $request->input('address'),
+                'bank_name'   => $request->input('bank_name'),
+                'account_number'   => $request->input('account_number'),
                 'status'    => 'active',
-                'tags'      => $request->input('tags'),
             ]);
             $Contractor->save();
             // You can customize the success response as needed

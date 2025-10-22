@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Professionals\AppointmentController;
 use App\Http\Controllers\API\Professionals\AppointmentNoteController;
 use App\Http\Controllers\API\Professionals\ContactController;
+use App\Http\Controllers\API\Professionals\ContractorController;
 use App\Http\Controllers\API\Professionals\CustomizationController;
 use App\Http\Controllers\API\Professionals\DocumentController;
 use App\Http\Controllers\API\Professionals\FormController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\API\Professionals\Settings\NotificationSettingControlle
 use App\Http\Controllers\API\Professionals\Settings\ProfileSettingController;
 use App\Http\Controllers\API\Professionals\Settings\BusinessLogoController;
 use App\Http\Controllers\API\Professionals\Settings\ChangePasswordController;
+use App\Http\Controllers\API\Professionals\VendorController;
 
     Route::group(['middleware' => 'cors'], function ()
     {
@@ -50,6 +52,22 @@ use App\Http\Controllers\API\Professionals\Settings\ChangePasswordController;
                         Route::get('show/{id}', [ContactController::class, 'show']);
                         Route::put('update/{id}', [ContactController::class, 'update']);
                         Route::delete('delete/{id}', [ContactController::class, 'delete']);
+                    });
+
+                    Route::group(['prefix' => '/vendors', 'as' => 'vendors.'], function () {
+                        Route::post('create', [VendorController::class, 'create']);
+                        Route::get('list', [VendorController::class, 'index']);
+                        Route::get('show/{id}', [VendorController::class, 'show']);
+                        Route::put('update/{id}', [VendorController::class, 'update']);
+                        Route::delete('delete/{id}', [VendorController::class, 'delete']);
+                    });
+
+                    Route::group(['prefix' => '/contractors', 'as' => 'contractors.'], function () {
+                        Route::post('create', [ContractorController::class, 'create']);
+                        Route::get('list', [ContractorController::class, 'index']);
+                        Route::get('show/{id}', [ContractorController::class, 'show']);
+                        Route::put('update/{id}', [ContractorController::class, 'update']);
+                        Route::delete('delete/{id}', [ContractorController::class, 'delete']);
                     });
 
                     Route::group(['prefix' => '/appointments', 'as' => 'appointments.'], function () {
