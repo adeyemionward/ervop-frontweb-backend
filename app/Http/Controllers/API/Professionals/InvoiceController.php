@@ -503,6 +503,7 @@ class InvoiceController extends Controller
                     'email' => $invoice->user->email ?? null,
                     'phone' => $invoice->user->phone ?? null,
                     'business_name' => $invoice->user->business_name ?? null,
+                    'business_logo' => $invoice->user->business_logo ?? null,
                     'address' => $invoice->user->address ?? null,
                 ],
 
@@ -537,7 +538,7 @@ class InvoiceController extends Controller
                 'payments' => $invoice->payments->map(function ($payment) {
                     return [
                         'id'                => $payment->id,
-                        'paid_amount'       => $payment->amount,
+                        'amount'            => $payment->amount,
                         'payment_date'      => $payment->payment_date,
                         'payment_method'    => $payment->payment_method,
                     ];

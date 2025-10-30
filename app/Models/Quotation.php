@@ -49,6 +49,8 @@ class Quotation extends Model
         return $this->belongsTo(Contact::class, 'contact_id');
     }
 
+
+
     /**
      * Relationship: Quotation belongs to a project.
      */

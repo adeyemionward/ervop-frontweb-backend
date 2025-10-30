@@ -219,6 +219,15 @@ class QuotationController extends Controller
                 'appointment_id'       => $quotation->appointment_id,
                 'status' => $quotation->status,
                 'customer' => $quotation->customer,
+                'professional' => [
+                    'id'    => $quotation->user->id ?? null,
+                    'name'  => $quotation->user->firstname.' '.$quotation->user->lastname ?? null,
+                    'email' => $quotation->user->email ?? null,
+                    'phone' => $quotation->user->phone ?? null,
+                    'business_name' => $quotation->user->business_name ?? null,
+                    'business_logo' => $quotation->user->business_logo ?? null,
+                    'address' => $quotation->user->address ?? null,
+                ],
                 'items' => $quotation->items,
                 'summary' => [
                     'subtotal' => $subtotal,
