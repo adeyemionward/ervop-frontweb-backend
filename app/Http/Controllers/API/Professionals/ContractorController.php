@@ -91,7 +91,7 @@ class ContractorController extends Controller
 
             return response()->json([
                 'status' => true,
-                'client' => $Contractor,
+                'contractor' => $Contractor,
             ], 200);
 
         } catch (\Exception $e) {

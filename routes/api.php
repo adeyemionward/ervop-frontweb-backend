@@ -10,6 +10,7 @@ use App\Http\Controllers\API\Professionals\ContactController;
 use App\Http\Controllers\API\Professionals\ContractorController;
 use App\Http\Controllers\API\Professionals\CustomizationController;
 use App\Http\Controllers\API\Professionals\DocumentController;
+use App\Http\Controllers\API\Professionals\Finance\QuotationController;
 use App\Http\Controllers\API\Professionals\FormController;
 use App\Http\Controllers\API\Professionals\FormSubmissionController;
 use App\Http\Controllers\API\Professionals\InvoiceController;
@@ -124,6 +125,19 @@ use App\Http\Controllers\API\Professionals\VendorController;
                         Route::put('updatePayment/{payment}', [InvoicePaymentController::class, 'updatePayment']);
                         Route::get('showPayment/{payment}', [InvoicePaymentController::class, 'showPayment']);
                         Route::delete('deletePayment/{payment}', [InvoicePaymentController::class, 'deletePayment']);
+
+                        Route::get('projectInvoices/{projectId}', [InvoiceController::class, 'projectInvoices']);
+                        Route::get('appointmentInvoices/{appointmenttId}', [InvoiceController::class, 'appointmentInvoices']);
+
+                    });
+                    Route::group(['prefix' => '/finances', 'as' => 'finances.'], function () {
+                        Route::group(['prefix' => '/quotations', 'as' => 'quotations.'], function () {
+                            Route::post('create', [QuotationController::class, 'create']);
+                            Route::get('list', [QuotationController::class, 'index']);
+                            Route::get('show/{quotation}', [QuotationController::class, 'show']);
+                            Route::put('update/{quotation}', [QuotationController::class, 'update']);
+                            Route::delete('delete/{quotation}', [QuotationController::class, 'delete']);
+                        });
                     });
 
                     Route::group(['prefix' => '/transactions', 'as' => 'transactions.'], function () {

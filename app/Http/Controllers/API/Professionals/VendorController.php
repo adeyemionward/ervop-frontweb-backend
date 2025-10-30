@@ -92,7 +92,7 @@ class VendorController extends Controller
 
             return response()->json([
                 'status' => true,
-                'client' => $Vendor,
+                'vendor' => $Vendor,
             ], 200);
 
         } catch (\Exception $e) {

@@ -4,38 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Invoice extends Model
+class Quotation extends Model
 {
     protected $fillable = [
         'user_id',
         'contact_id',
         'appointment_id',
         'project_id',
-        'invoice_no',
-        'invoice_type',
+        'quotation_no',
+        'quotation_type',
         'issue_date',
-        'due_date',
+        'valid_until',
         'tax_percentage',
         'discount_percentage',
         'tax_amount',
         'subtotal',
         'discount',
         'total',
-        'is_recurring',
-        'repeats',
-        'occuring_start_date',
-        'occuring_end_date',
         'notes',
-        'remaining_balance',
+        'status', // e.g. pending, accepted, rejected
     ];
 
+    /**
+     * Relationship: Each quotation has many items.
+     */
     public function items()
     {
-        return $this->hasMany(InvoiceItem::class);
+        return $this->hasMany(QuotationItem::class);
     }
 
     /**
-     * Get the user that owns the invoice.
+     * Relationship: Quotation belongs to a user.
      */
     public function user()
     {
@@ -43,7 +42,7 @@ class Invoice extends Model
     }
 
     /**
-     * Get the contact associated with the invoice.
+     * Relationship: Quotation belongs to a contact (customer).
      */
     public function customer()
     {
@@ -51,33 +50,33 @@ class Invoice extends Model
     }
 
     /**
-     * Get the project associated with the invoice.
+     * Relationship: Quotation belongs to a project.
      */
     public function project()
     {
         return $this->belongsTo(Project::class);
     }
 
+    /**
+     * Relationship: Quotation belongs to an appointment.
+     */
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);
     }
 
-    public function payments()
+    /**
+     * Generate a new quotation number (e.g. QUO-0001)
+     */
+    public static function generateQuotationNumber()
     {
-        return $this->hasMany(InvoicePayment::class)->latest('payment_date');
-    }
-
-    public static function generateInvoiceNumber()
-    {
-    // Get the latest invoice record
-        $latestInvoice = self::orderBy('id', 'desc')->first();
+        // Get the latest quotation
+        $latestQuotation = self::orderBy('id', 'desc')->first();
 
         // Extract the last number or start from 0
         $lastNumber = 0;
-        if ($latestInvoice && isset($latestInvoice->invoice_no)) {
-            // Try to extract the numeric part, e.g. "INV-0012" → 12
-            preg_match('/\d+$/', $latestInvoice->invoice_no, $matches);
+        if ($latestQuotation && isset($latestQuotation->quotation_no)) {
+            preg_match('/\d+$/', $latestQuotation->quotation_no, $matches);
             if (!empty($matches)) {
                 $lastNumber = (int) $matches[0];
             }
@@ -86,9 +85,7 @@ class Invoice extends Model
         // Increment and format to 4 digits
         $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
 
-        // Return formatted invoice number
-        return 'INV-' . $newNumber;
+        // Return formatted quotation number
+        return 'QUO-' . $newNumber;
     }
-
-
 }

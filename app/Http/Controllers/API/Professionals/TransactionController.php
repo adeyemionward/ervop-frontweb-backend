@@ -14,29 +14,32 @@ class TransactionController extends Controller
 {
      public function index()
     {
-        $transactions = Transaction::with('items')->where('user_id', Auth::id())->orderBy('date', 'desc')->get();
-        return response()->json($transactions);
+        $transactions = Transaction::with(['contact', 'items'])->latest()->get();
+
+        return TransactionResource::collection($transactions);
     }
 
     public function create(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
-            'type' => 'required|in:income,expense,disbursement',
+            'type' => 'required|in:income,expense',
+            'sub_type' => 'nullable|in:bills,disbursement',
             'amount' => 'required_if:type,income|numeric|min:0',
             // 'notes' => 'required',
             'invoice_id' => 'nullable|exists:invoices,id',
-            
+
             // **THE FIXES ARE HERE:**
-            'title' => 'required_if:type,expense|string|max:255', // This is correct
-            'items' => 'required_if:type,expense|array|min:1',
+            'title' => 'required|string|max:255', // This is correct
+
+            'items' => 'required_if:sub_type,bills|array|min:1',
             'items.*.description' => 'required|string|max:255', // Changed from 'title' to 'description'
             'items.*.amount' => 'required|numeric|min:0',
-            
+
             'date' => 'required|date_format:Y-m-d',
             'payment_method' => 'required|string',
-            'category' => 'required_if:type,expense|string|max:255',
-            'contact_id' => 'nullable|exists:contacts,id',
+            'category' => 'required_if:sub_type,bills|string|max:255',
+            'contact_id' => 'required|exists:contacts,id',
             'project_id' => 'nullable|exists:projects,id',
             'appointment_id' => 'nullable|exists:appointments,id',
         ]);
@@ -56,6 +59,7 @@ class TransactionController extends Controller
             $data = [
                 'user_id' => Auth::id(),
                 'type' => $validatedData['type'],
+                'sub_type' => $validatedData['sub_type'] ?? '',
                 'date' => $validatedData['date'],
                 'payment_method' => $validatedData['payment_method'],
                 'category' => $validatedData['category'] ?? null,
@@ -64,14 +68,13 @@ class TransactionController extends Controller
                 'appointment_id' => $validatedData['appointment_id'] ?? null,
                 'title' => $validatedData['title'] ?? null,
 
-            ]; 
+            ];
 
-            if ($validatedData['type'] === 'income' || $validatedData['type'] === 'disbursement' ) {
+            if ($validatedData['type'] === 'income' || $validatedData['sub_type'] === 'disbursement' ) {
                 $data['amount'] = $validatedData['amount'];
                 $data['invoice_id'] = $validatedData['invoice_id'] ?? null;
                 $transaction = Transaction::create($data);
             } else { // Expense
-                // $data['description'] = $validatedData['items']['description'];
                 $data['amount'] = collect($validatedData['items'])->sum('amount');
 
                 // Create the parent transaction first
@@ -93,18 +96,19 @@ class TransactionController extends Controller
         $transaction = Transaction::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'type' => 'required|in:income,expense, disbursement',
+            'type' => 'required|in:income,expense',
+            'sub_type' => 'nullable|in:bills,disbursement',
             'amount' => 'required_if:type,income|numeric|min:0',
             'invoice_id' => 'nullable|exists:invoices,id',
 
-            'title' => 'required_if:type,expense|string|max:255',
-            'items' => 'required_if:type,expense|array|min:1',
+            'title' => 'required_if:sub_type,bills|string|max:255',
+            'items' => 'required_if:sub_type,bills|array|min:1',
             'items.*.description' => 'required|string|max:255',
             'items.*.amount' => 'required|numeric|min:0',
 
             'date' => 'required|date_format:Y-m-d',
             'payment_method' => 'required|string',
-            'category' => 'required_if:type,expense|string|max:255',
+            'category' => 'required_if:sub_type,bills|string|max:255',
             'contact_id' => 'nullable|exists:contacts,id',
             'project_id' => 'nullable|exists:projects,id',
             'appointment_id' => 'nullable|exists:appointments,id',
@@ -123,6 +127,7 @@ class TransactionController extends Controller
         $transaction = DB::transaction(function () use ($transaction, $validatedData) {
                     $data = [
                 'type' => $validatedData['type'],
+                'sub_type' => $validatedData['sub_type'] ?? '',
                 'date' => $validatedData['date'],
                 'payment_method' => $validatedData['payment_method'],
                 'category' => $validatedData['category'] ?? null,
@@ -132,7 +137,7 @@ class TransactionController extends Controller
                 'title' => $validatedData['title'] ?? null,
             ];
 
-            if ($validatedData['type'] === 'income') {
+            if ($validatedData['type'] === 'income' || $validatedData['sub_type'] === 'disbursement') {
                 $data['amount'] = $validatedData['amount'];
                 $data['invoice_id'] = $validatedData['invoice_id'] ?? null;
 
@@ -167,10 +172,11 @@ class TransactionController extends Controller
         }
 
         // Structure response differently based on type
-        if ($transaction->type === 'income' || $transaction->type === 'disbursement') {
+        if ($transaction->type === 'income' || $transaction->sub_type === 'disbursement') {
             return response()->json([
                 'id' => $transaction->id,
                 'type' => $transaction->type,
+                'sub_type' => $transaction->sub_type,
                 'amount' => $transaction->amount,
                 'invoice_id' => $transaction->invoice_id,
                 'date' => $transaction->date,
@@ -184,25 +190,29 @@ class TransactionController extends Controller
         }
 
         // Expense response
-        return response()->json([
-            'id' => $transaction->id,
-            'type' => $transaction->type,
-            'title' => $transaction->title,
-            'amount' => $transaction->amount,
-            'date' => $transaction->date,
-            'payment_method' => $transaction->payment_method,
-            'category' => $transaction->category,
-            'contact_id' => $transaction->contact_id,
-            'project_id' => $transaction->project_id,
-            'appointment_id' => $transaction->appointment_id,
-            'items' => $transaction->items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'description' => $item->description,
-                    'amount' => $item->amount,
-                ];
-            }),
-        ]);
+        if ($transaction->sub_type === 'bills') {
+            return response()->json([
+                'id' => $transaction->id,
+                'type' => $transaction->type,
+                'sub_type' => $transaction->sub_type,
+                'title' => $transaction->title,
+                'amount' => $transaction->amount,
+                'invoice_id' => $transaction->invoice_id,
+                'date' => $transaction->date,
+                'payment_method' => $transaction->payment_method,
+                'category' => $transaction->category,
+                'contact_id' => $transaction->contact_id,
+                'project_id' => $transaction->project_id,
+                'appointment_id' => $transaction->appointment_id,
+                'items' => $transaction->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'description' => $item->description,
+                        'amount' => $item->amount,
+                    ];
+                }),
+            ]);
+        }
     }
 
 
@@ -259,7 +269,7 @@ class TransactionController extends Controller
         $category = TransactionCategory::create([
             'title' => $request->title,
             'type' => $request->type,
-            'user_id' => Auth::user()->id, 
+            'user_id' => Auth::user()->id,
         ]);
 
         return response()->json([

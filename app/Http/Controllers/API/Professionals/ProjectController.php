@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\API\Professionals;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\InvoiceResource;
 use App\Http\Resources\ProjectResource;
+use App\Models\Invoice;
 use App\Models\Project;
 use App\Models\ProjectTask;
 use Illuminate\Http\Request;
@@ -152,4 +154,7 @@ class ProjectController extends Controller
            return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+
+
 }

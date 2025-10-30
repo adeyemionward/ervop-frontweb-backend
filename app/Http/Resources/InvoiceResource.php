@@ -14,16 +14,21 @@ class InvoiceResource extends JsonResource
      */
      public function toArray(Request $request): array
     {
+            $totalPaid = \App\Models\InvoicePayment::where('invoice_id', $this->id)->sum('amount');
+
+            // Calculate outstanding balance
+            $outstanding = max($this->subtotal - $totalPaid, 0);
            return [
             'id' => $this->id,
             'invoice_no' => $this->invoice_no,
             'issue_date' => $this->issue_date,
             'due_date' => $this->due_date,
-            'amount' => $this->amount,
+            'amount' => $this->subtotal,
 
             // Flattened project fields (checking if the relationship is loaded)
             'project_id' => $this->whenLoaded('project', fn() => $this->project->id),
             'project_title' => $this->whenLoaded('project', fn() => $this->project->title),
+             'outstanding_balance' => $outstanding, // 👈 added here
 
             // Flattened customer fields (checking if the relationship is loaded)
             'customer_id' => $this->whenLoaded('customer', fn() => $this->customer->id),
@@ -37,6 +42,12 @@ class InvoiceResource extends JsonResource
 
             'created_at' => $this->created_at,
         ];
+
+
+
+
+    
+
 
 
         // return [

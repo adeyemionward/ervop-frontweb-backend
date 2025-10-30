@@ -7,21 +7,26 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransactionResource extends JsonResource
 {
-    public function toArray(Request $request): array
-    {
-        return [
-            'id' => $this->id,
-            'type' => $this->type,
-            // 'title' => $this->title,
-            'amount' => $this->amount,
-            'date' => $this->date,
-            'category' => $this->category,
-            // 'items' => TransactionItemResource::collection($this->whenLoaded('items')), // Load items relationship
-            'contact_id' => $this->contact_id,
-            'project_id' => $this->project_id,
-            'appointment_id' => $this->appointment_id,
-            'invoice_id' => $this->invoice_id,
-            'created_at' => $this->created_at,
-        ];
-    }
+    public function toArray($request)
+{
+    return [
+        'id' => $this->id,
+        'user_id' => $this->user_id,
+        'contact_id' => $this->contact_id,
+        'contact_name' => optional($this->contact)->firstname.' '.optional($this->contact)->lastname ?? null, // 👈 this adds the name
+        'contact_email' => optional($this->contact)->email ?? null, // 👈 this adds the name
+        'invoice_id' => $this->invoice_id,
+        'appointment_id' => $this->appointment_id,
+        'payment_method' => $this->payment_method,
+        'project_id' => $this->project_id,
+        'amount' => $this->amount,
+        'date' => $this->date,
+        'category' => $this->category,
+        'type' => $this->type,
+        'sub_type' => $this->sub_type,
+        'title' => $this->title,
+        'created_at' => $this->created_at,
+        'items' => ItemResource::collection($this->whenLoaded('items')),
+    ];
+}
 }

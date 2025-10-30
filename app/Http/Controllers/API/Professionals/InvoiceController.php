@@ -218,6 +218,12 @@ class InvoiceController extends Controller
             'item.*.description'    => ['required', 'string'],
             'item.*.quantity'       => ['required', 'numeric', 'min:1'],
             'item.*.rate'           => ['required', 'numeric', 'min:0'],
+
+              // 🆕 Recurring fields
+            'is_recurring'          => ['required', 'boolean'],
+            'repeats'               => ['nullable', 'string', Rule::in(['weekly', 'monthly'])],
+            'occuring_start_date'            => ['nullable', 'date', 'required_if:is_recurring,true'],
+            'occuring_end_date'              => ['nullable', 'date', 'after_or_equal:start_date', 'required_if:is_recurring,true'],
         ]);
 
         if ($validator->fails()) {
@@ -240,13 +246,19 @@ class InvoiceController extends Controller
                     'contact_id'    => $validatedData['contact_id'],
                     'appointment_id'    => $validatedData['appointment_id'] ?? null,
                     'project_id'    => $validatedData['project_id'] ?? null,
-                    'invoice_no'    => $validatedData['invoice_no'],
+                    'invoice_no'    => $validatedData['invoice_no'] ?? Invoice::generateInvoiceNumber(),
                     'invoice_type'  => isset($validatedData['appointment_id']) ? 'Appointment' : 'Project',
                     'issue_date'    => $validatedData['issue_date'],
                     'due_date'      => $validatedData['due_date'],
                     'tax_percentage'=> $validatedData['tax_percentage'] ?? 0,
                     'discount_percentage'      => $validatedData['discount_percentage'] ?? 0,
                     'notes'         => $validatedData['notes'] ?? null,
+
+                     // 🆕 Recurring payload
+                    'is_recurring'  => $validatedData['is_recurring'],
+                    'repeats'       => $validatedData['repeats'] ?? null,
+                    'occuring_start_date'    => $validatedData['occuring_start_date'] ?? null,
+                    'occuring_end_date'      => $validatedData['occuring_end_date'] ?? null,
                 ]);
 
                 $subtotal = 0;
@@ -323,6 +335,14 @@ class InvoiceController extends Controller
             'item.*.description' => ['required', 'string'],
             'item.*.quantity'    => ['required', 'numeric', 'min:1'],
             'item.*.rate'        => ['required', 'numeric', 'min:0'],
+
+               // 🆕 Recurring fields
+            'is_recurring'          => ['required', 'boolean'],
+            'repeats'               => ['nullable', 'string', Rule::in(['weekly', 'monthly'])],
+            'occuring_start_date'            => ['nullable', 'date', 'required_if:is_recurring,true'],
+            'occuring_end_date'              => ['nullable', 'date', 'after_or_equal:start_date', 'required_if:is_recurring,true'],
+
+
         ]);
 
         if ($validator->fails()) {
@@ -345,6 +365,12 @@ class InvoiceController extends Controller
                     'tax_percentage' => $validatedData['tax_percentage'] ?? 0,
                     'discount'       => $validatedData['discount'] ?? 0,
                     'notes'          => $validatedData['notes'] ?? null,
+
+                       // 🆕 Recurring payload
+                    'is_recurring'  => $validatedData['is_recurring'],
+                    'repeats'       => $validatedData['repeats'] ?? null,
+                    'occuring_start_date'    => $validatedData['occuring_start_date'] ?? null,
+                    'occuring_end_date'      => $validatedData['occuring_end_date'] ?? null,
                 ]);
 
                 $subtotal = 0;
@@ -410,29 +436,6 @@ class InvoiceController extends Controller
         }
     }
 
-
-    // public function show(Invoice $invoice)
-    // {
-    //     try {
-    //         // 2. Load the relationships for the single invoice instance.
-    //         // We use load() here because the model has already been retrieved.
-    //         $invoice->load('items');
-
-    //         // 3. Return the single invoice wrapped in its resource.
-    //         return response()->json([
-    //             'status' => true,
-    //             'data'   => $invoice,
-    //         ], 200);
-
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'message' => 'An error occurred',
-    //             'status'  => false,
-    //             'error'   => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
     public function show($id)
     {
         try {
@@ -481,6 +484,8 @@ class InvoiceController extends Controller
                 'invoice_no'     => $invoice->invoice_no,
                 'issue_date'     => $invoice->issue_date,
                 'due_date'       => $invoice->due_date,
+                'project_id'       => $invoice->project_id,
+                'appointment_id'       => $invoice->appointment_id,
                 'created_at'     => $invoice->created_at,
                 'status'         => $status,
 
@@ -510,6 +515,13 @@ class InvoiceController extends Controller
                         'total'       => $item->quantity * $item->rate,
                     ];
                 }),
+
+                'reoccuring' => [
+                    'is_recurring'    => $invoice->is_recurring ?? null,
+                    'repeats'  => $invoice->repeats ?? null,
+                    'occuring_start_date' => $invoice->occuring_start_date ?? null,
+                    'occuring_end_date' => $invoice->occuring_end_date ?? null,
+                ],
 
                 'summary' => [
                     'subtotal'              => $subtotal,
@@ -548,7 +560,133 @@ class InvoiceController extends Controller
         }
     }
 
+     public function clientInvoices($contactId)
+    {
+        $user = Auth::user();
+        // Fetch all services for the authenticated user
+                    try {
+                        $invoices = Invoice::with([ 'project'])
+            ->where('user_id', $user->id)
+            ->where('contact_id', $contactId)
+            ->orderBy('id', 'DESC')
+            ->get();
 
+
+
+            if ($invoices->isEmpty()) {
+                return response()->json(['message' => 'No invoices found', 'status' => false], 200);
+            }
+            $invoices = InvoiceResource::collection($invoices);
+            return response()->json([
+                'status' => true,
+                'data' => $invoices,
+            ], 200);
+
+        } catch (\Exception $e) {
+           return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function projectInvoices($projectId)
+    {
+        $user = Auth::user();
+
+        try {
+            // Fetch invoices for this project
+            $invoices = Invoice::with(['project'])
+                ->where('user_id', $user->id)
+                ->where('project_id', $projectId)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            if ($invoices->isEmpty()) {
+                return response()->json([
+                    'message' => 'No invoices found',
+                    'status' => false
+                ], 200);
+            }
+
+            // Calculate and filter by outstanding balance
+            $invoicesWithOutstanding = $invoices->filter(function ($invoice) {
+                $totalPaid = \App\Models\InvoicePayment::where('invoice_id', $invoice->id)->sum('amount');
+                $outstanding = max($invoice->subtotal - $totalPaid, 0);
+                $invoice->outstanding_balance = $outstanding;
+
+                // Keep only invoices that still have outstanding amount
+                return $outstanding > 0;
+            })->values(); // reset array indexes
+
+            if ($invoicesWithOutstanding->isEmpty()) {
+                return response()->json([
+                    'message' => 'No outstanding invoices found',
+                    'status' => false
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => true,
+                'data' => \App\Http\Resources\InvoiceResource::collection($invoicesWithOutstanding),
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred',
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function appointmentInvoices($appointmentId)
+    {
+        $user = Auth::user();
+
+        try {
+            // Fetch invoices for this appointment
+            $invoices = Invoice::with(['appointment'])
+                ->where('user_id', $user->id)
+                ->where('appointment_id', $appointmentId)
+                ->orderBy('id', 'DESC')
+                ->get();
+
+            if ($invoices->isEmpty()) {
+                return response()->json([
+                    'message' => 'No invoices found',
+                    'status' => false
+                ], 200);
+            }
+
+            // Calculate and filter only invoices with outstanding balances
+            $invoicesWithOutstanding = $invoices->filter(function ($invoice) {
+                $totalPaid = \App\Models\InvoicePayment::where('invoice_id', $invoice->id)->sum('amount');
+                $outstanding = max($invoice->subtotal - $totalPaid, 0);
+                $invoice->outstanding_balance = $outstanding;
+
+                // Keep only invoices that have a positive outstanding amount
+                return $outstanding > 0;
+            })->values();
+
+            if ($invoicesWithOutstanding->isEmpty()) {
+                return response()->json([
+                    'message' => 'No outstanding invoices found',
+                    'status' => false
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => true,
+                'data' => \App\Http\Resources\InvoiceResource::collection($invoicesWithOutstanding),
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error occurred',
+                'status' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
       public function delete($id)
     {
@@ -567,7 +705,7 @@ class InvoiceController extends Controller
             'message'   => 'Invoice deleted',
         ], 200);
         }
-     
+
     }
 
 }
