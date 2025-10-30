@@ -159,12 +159,13 @@ use App\Http\Controllers\API\Professionals\VendorController;
                         Route::get('list', [FormController::class, 'index']);
                         Route::get('show/{form}', [FormController::class, 'show']);
                         Route::put('update/{form}', [FormController::class, 'update']);
+                        Route::delete('delete/{form}', [FormController::class, 'delete']);
 
                         Route::post('submitForm', [FormSubmissionController::class, 'submitForm']);
                         Route::get('listFormSubmissions/{form}', [FormSubmissionController::class, 'listFormSubmissions']);
                         Route::get('viewFormSubmissions/{submission}', [FormSubmissionController::class, 'viewFormSubmissions']);
                         Route::put('updateFormSubmissions/{submission}', [FormSubmissionController::class, 'updateFormSubmissions']);
-                        Route::delete('delete/{id}', [FormController::class, 'delete']);
+
                     });
 
                     Route::group(['prefix' => '/customizations', 'as' => 'customizations.'], function () {

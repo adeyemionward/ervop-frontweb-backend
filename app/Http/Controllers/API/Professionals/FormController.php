@@ -14,7 +14,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 class FormController extends Controller
 {
-    
+
     public function index()
     {
         $forms = Form::where('user_id', Auth::user()->id)->latest()->get();
@@ -111,11 +111,24 @@ class FormController extends Controller
 
     return response()->json($form->fresh()->load('fields'));
 }
-    public function destroy(Form $form)
+     public function delete($id)
     {
-        // Add authorization check here in a real app
-        $form->delete();
-        return response()->noContent();
+        $invoice = Form::find($id);
+
+        if (!$invoice) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Form not found.',
+            ], 200);
+        }
+        $delete =  $invoice->delete();
+        if($delete){
+            return response()->json([
+            'status' => true,
+            'message'   => 'Form deleted',
+        ], 200);
+        }
+
     }
 
     /**
