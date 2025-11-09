@@ -3,31 +3,31 @@
 namespace App\Http\Controllers\API\Professionals;
 
 use App\Http\Controllers\Controller;
-use App\Models\Appointment;
-use App\Models\AppointmentNote;
+use App\Models\Project;
+use App\Models\ProjectNote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class AppointmentNoteController extends Controller
+class ProjectNoteController extends Controller
 {
-    public function index(Appointment $appointment)
+    public function index(Project $project)
     {
         try {
             // Eager load user relation (only id + firstname)
-            $appointmentNotes = AppointmentNote::with('user:id,firstname,lastname')
-                ->where('appointment_id', $appointment->id)
+            $projectNotes = ProjectNote::with('user:id,firstname,lastname')
+                ->where('project_id', $project->id)
                 ->get();
 
-            if ($appointmentNotes->isEmpty()) {
+            if ($projectNotes->isEmpty()) {
                 return response()->json([
-                    'message' => 'No notes found for this appointment',
+                    'message' => 'No notes found for this project',
                     'status' => false
                 ], 200);
             }
 
             // Map notes into clean structure
-            $notes = $appointmentNotes->map(function ($note) {
+            $notes = $projectNotes->map(function ($note) {
                 return [
                     'id' => $note->id,
                     'content' => $note->content,
@@ -52,7 +52,7 @@ class AppointmentNoteController extends Controller
     }
 
 
-    public function store(Request $request, Appointment $appointment)
+    public function store(Request $request, project $project)
     {
 
 
@@ -69,7 +69,7 @@ class AppointmentNoteController extends Controller
         }
 
 
-        $note = $appointment->notes()->create([
+        $note = $project->notes()->create([
             'user_id' => Auth::id(),
             'content' => $request->input('content'),
         ]);
@@ -87,10 +87,10 @@ class AppointmentNoteController extends Controller
     }
 
     /**
-     * Update an existing appointment note.
+     * Update an existing project note.
     */
 
-    public function update(Request $request, AppointmentNote $note)
+    public function update(Request $request, projectNote $note)
     {
         $validator = Validator::make($request->all(), [
             'content' => ['required', 'string'],
@@ -111,9 +111,9 @@ class AppointmentNoteController extends Controller
     }
 
     /**
-     * Remove the specified appointment note from storage.
+     * Remove the specified project note from storage.
     */
-    public function destroy(AppointmentNote $note)
+    public function destroy(projectNote $note)
     {
         $isDeleted = $note->delete();
 

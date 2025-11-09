@@ -187,7 +187,6 @@ class AppointmentController extends Controller
             $appointment->load([
                 'service:id,name',
                 'customer:id,firstname,lastname,email,phone',
-                // 'notesHistory:id,appointment_id,content,created_at',
                 'notesHistory.user:id,firstname,lastname',
                 'invoices.items',
                 'invoices.payments',

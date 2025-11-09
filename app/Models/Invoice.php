@@ -58,6 +58,8 @@ class Invoice extends Model
         return $this->belongsTo(Project::class);
     }
 
+   
+
     public function appointment()
     {
         return $this->belongsTo(Appointment::class);
@@ -65,8 +67,10 @@ class Invoice extends Model
 
     public function payments()
     {
-        return $this->hasMany(InvoicePayment::class)->latest('payment_date');
+        return $this->hasMany(Transaction::class);
     }
+
+
 
     public static function generateInvoiceNumber()
     {

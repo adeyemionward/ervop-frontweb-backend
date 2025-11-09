@@ -16,6 +16,7 @@ use App\Http\Controllers\API\Professionals\FormSubmissionController;
 use App\Http\Controllers\API\Professionals\InvoiceController;
 use App\Http\Controllers\API\Professionals\InvoicePaymentController;
 use App\Http\Controllers\API\Professionals\ProjectController;
+use App\Http\Controllers\API\Professionals\ProjectNoteController;
 use App\Http\Controllers\API\Professionals\ServiceController;
 use App\Http\Controllers\API\Professionals\TransactionController;
 use App\Http\Controllers\API\Professionals\Settings\AccountSettingController;
@@ -98,10 +99,17 @@ use App\Http\Controllers\API\Professionals\VendorController;
                     Route::group(['prefix' => '/projects', 'as' => 'projects.'], function () {
                         Route::post('create', [ProjectController::class, 'create']);
                         Route::get('list', [ProjectController::class, 'index']);
-                        Route::get('show/{id}', [ProjectController::class, 'show']);
+                        Route::get('show/{project}', [ProjectController::class, 'show']);
                         Route::get('clientProjects/{contactId}', [ProjectController::class, 'clientProjects']);
                         Route::put('update/{id}', [ProjectController::class, 'update']);
                         Route::delete('delete/{id}', [ProjectController::class, 'delete']);
+
+                        Route::group(['prefix' => '/notes', 'as' => 'notes.'], function () {
+                            Route::get('list/{project}', [ProjectNoteController::class, 'index']);
+                            Route::post('create/{project}', [ProjectNoteController::class, 'store']);
+                            Route::put('update/{note}', [ProjectNoteController::class, 'update']);
+                            Route::delete('delete/{note}', [ProjectNoteController::class, 'destroy']);
+                        });
                     });
 
                     Route::group(['prefix' => '/documents', 'as' => 'documents.'], function () {

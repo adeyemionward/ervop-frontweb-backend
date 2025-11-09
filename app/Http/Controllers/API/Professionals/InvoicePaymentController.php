@@ -5,9 +5,11 @@ namespace App\Http\Controllers\API\Professionals;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\InvoiceResource;
 use App\Http\Resources\PaymentResource;
+use App\Http\Resources\TransactionResource;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoicePayment;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +22,7 @@ class InvoicePaymentController extends Controller
     public function listPayment(Request $request)
     {
         // Start the query for payments belonging to the authenticated user
-        $query = InvoicePayment::where('user_id', Auth::id());
+        $query = Transaction::where('user_id', Auth::id());
 
         // Optional: Allow filtering by project_id
         if ($request->has('project_id')) {
@@ -36,7 +38,7 @@ class InvoicePaymentController extends Controller
         $payments = $query->with([
             'invoice:id,invoice_no,total'
         ])
-        ->orderBy('payment_date', 'desc')
+        ->orderBy('date', 'desc')
         ->get(); // Paginate the results
 
          if(count($payments) == 0){
@@ -48,7 +50,7 @@ class InvoicePaymentController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Payments retrieved successfully.',
-                'data' => PaymentResource::collection($payments),
+                'data' => TransactionResource::collection($payments),
             ], 200);
         }
 
@@ -63,7 +65,7 @@ class InvoicePaymentController extends Controller
             'amount' => ['required', 'numeric', 'min:0.01', 'max:' . $invoice->remaining_balance],
             'payment_date' => ['required', 'date_format:Y-m-d'],
             'payment_method' => ['nullable', 'string', 'max:255'],
-            'notes' => ['nullable', 'string'],
+            'title' => ['nullable', 'string'],
         ]);
 
         if ($validator->fails()) {
@@ -83,9 +85,9 @@ class InvoicePaymentController extends Controller
             'appointment_id' => $invoice->appointment_id,
             'project_id'     => $invoice->project_id,
             'amount'         => $validatedData['amount'],
-            'payment_date'   => $validatedData['payment_date'],
+            'date'   => $validatedData['payment_date'],
             'payment_method' => $validatedData['payment_method'] ?? 'N/A',
-            'notes'          => $validatedData['notes'],
+            'title'          => $validatedData['title'],
         ]);
 
         // Update totals & status
@@ -100,11 +102,11 @@ class InvoicePaymentController extends Controller
 
     }
 
-    public function showPayment($id)
+    public function showPayment($payment)
     {
-        $payment = InvoicePayment::with([
-            'invoice:id,invoice_no,total,status'
-        ])->find($id);
+        $payment = Transaction::with([
+            'invoice:id,invoice_no,total'
+        ])->find($payment);
 
         if (!$payment) {
             return response()->json([
@@ -115,12 +117,12 @@ class InvoicePaymentController extends Controller
 
         return response()->json([
             'status' => true,
-            'data'   => new PaymentResource($payment),
+            'data'   => new TransactionResource($payment),
         ], 200);
     }
 
 
-    public function updatePayment(Request $request, InvoicePayment $payment)
+    public function updatePayment(Request $request, Transaction $payment)
     {
 
         $invoice = $payment->invoice;
@@ -146,7 +148,7 @@ class InvoicePaymentController extends Controller
         return new InvoiceResource($invoice->fresh()->load('items', 'payments'));
     }
 
-    public function deletePayment(InvoicePayment $payment): InvoiceResource
+    public function deletePayment(Transaction $payment): InvoiceResource
     {
         $invoice = $payment->invoice;
 

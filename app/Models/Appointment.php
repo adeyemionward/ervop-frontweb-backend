@@ -18,15 +18,6 @@ class Appointment extends Model
         'notes',
     ];
 
-   // protected $appends = ['appointment_status'];
-
-
-    /**
-     * Get the status of the appointment.
-     *
-     * If a status is already set in the database, it will be used.
-     * Otherwise, it will be calculated based on the appointment date and time.
-     */
     protected function appointmentStatus(): Attribute
     {
         return Attribute::make(
@@ -73,11 +64,6 @@ class Appointment extends Model
         return $this->hasMany(Document::class, 'appointment_id'); // 👈 assumes documents table has appointment_id
     }
 
-    // public function notes()
-    // {
-    //     return $this->hasMany(AppointmentNote::class)->latest(); // Order by newest first
-    // }
-
     public function notes()
     {
         return $this->hasMany(AppointmentNote::class, 'appointment_id');
@@ -87,5 +73,12 @@ class Appointment extends Model
     {
         return $this->hasMany(AppointmentNote::class, 'appointment_id');
     }
+
+
+    public function payments()
+    {
+        return $this->hasMany(Transaction::class,'appointment_id');
+    }
+
 
 }

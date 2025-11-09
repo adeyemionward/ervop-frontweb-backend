@@ -256,7 +256,7 @@
       <!-- Left: Image + Overlay Text -->
         <!-- Left: Fancy Section -->
         <div class="relative col-span-1 rounded-3xl overflow-hidden shadow-2xl flex flex-col justify-center h-full min-h-[700px] p-12"
-            style="background: linear-gradient(135deg, #7F00FF 0%, #E100FF 50%, #FF7F50 100%);">
+            style="background: gradient-gradient(135deg, #7F00FF 0%, #E100FF 50%, #FF7F50 100%);">
 
             <!-- Optional: animated gradient overlay for more flair -->
             <div class="absolute inset-0 bg-gradient-to-tr from-purple-700 via-pink-500 to-orange-400 opacity-70 mix-blend-multiply animate-gradient-background"></div>

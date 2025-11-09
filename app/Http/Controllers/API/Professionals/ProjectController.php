@@ -64,9 +64,12 @@ class ProjectController extends Controller
             ], 422);
         }
 
+        $randomSecure = bin2hex(random_bytes(16)); // Generate a secure random string
+
         try {
-            $project = DB::transaction(function () use ($request) {
+            $project = DB::transaction(function () use ($request, $randomSecure) {
                 $project = new Project([
+                    'client_project_id' => $randomSecure,
                     'user_id'       => Auth::user()->id,
                     'contact_id'    => $request->input('contact_id'),
                     'service_id'    => $request->input('service_id'),
@@ -114,24 +117,108 @@ class ProjectController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Project $project)
     {
-
         try {
-            $project = Project::where('user_id', Auth::id())->where('id', $id)->first();
-            if (is_null($project)) {
-                return response()->json(['message' => 'No Project found', 'status' => false], 200);
+            // return $project->user_id.'--'. Auth::id();
+            // 1. Authorization
+            if ($project->user_id !== Auth::id()) {
+                return response()->json([
+                    'message' => 'Unauthorized',
+                    'status'  => false,
+                ], 403);
             }
+
+            // 2. Eager-load relationships
+            $project->load([
+                'service:id,name',
+                'customer:id,firstname,lastname,email,phone',
+                // 'notesHistory:id,project_id,content,created_at',
+                'notesHistory.user:id,firstname,lastname',
+                'invoices.items',
+                'invoices.payments',
+                'documents.files',
+            ]);
+
+            // 3. Format response
+            $data = [
+                'id'                => $project->id,
+                'user_id'           => $project->user_id,
+                'contact_id'        => $project->contact_id,
+                'service_id'        => $project->service_id,
+                'date'              => $project->date,
+                'time'              => $project->time,
+                'amount'            => $project->amount,
+                'project_status'=> $project->project_status,
+                'notesHistory' => $project->notesHistory ? $project->notesHistory->map(function ($note) {
+            return [
+                'id'             => $note->id,
+                'project_id' => $note->project_id,
+                'content'        => $note->content,
+                'author'         => $note->user->firstname . ' ' . $note->user->lastname ?? 'Unknown', // ✅ include user firstname
+                'created_at'     => $note->created_at,
+            ];
+        }) : [],
+
+                'created_at'        => $project->created_at,
+                'updated_at'        => $project->updated_at,
+                'service'           => $project->service,
+                'customer'          => $project->customer,
+                'invoices'          => $project->invoices ? $project->invoices->map(function ($invoice) {
+                    return [
+                        'id'                  => $invoice->id,
+                        'user_id'             => $invoice->user_id,
+                        'contact_id'          => $invoice->contact_id,
+                        'project_id'          => $invoice->project_id,
+                        'project_id'      => $invoice->project_id,
+                        'invoice_no'          => $invoice->invoice_no,
+                        'invoice_type'        => $invoice->invoice_type,
+                        'issue_date'          => $invoice->issue_date,
+                        'due_date'            => $invoice->due_date,
+                        'subtotal'            => $invoice->subtotal,
+                        'tax_percentage'      => $invoice->tax_percentage,
+                        'discount_percentage' => $invoice->discount_percentage,
+                        'tax_amount'          => $invoice->tax_amount,
+                        'discount'            => $invoice->discount,
+                        'total'               => $invoice->total,
+                        'remaining_balance'   => $invoice->remaining_balance,
+                        'notes'               => $invoice->notes,
+                        'created_at'          => $invoice->created_at,
+                        'updated_at'          => $invoice->updated_at,
+                        'items'               => $invoice->items,
+                        'payments'            => $invoice->payments,
+                    ];
+                })
+                :[],
+                'documents' => $project->documents ? $project->documents->map(function ($doc) {
+                    return [
+                        'id'           => $doc->id,
+                        'user_id'      => $doc->user_id,
+                        'contact_id'   => $doc->contact_id,
+                        'project_id'   => $doc->project_id,
+                        'project_id'=> $doc->project_id,
+                        'title'        => $doc->title,
+                        'tags'         => $doc->tags,
+                        'created_at'   => $doc->created_at,
+                        'updated_at'   => $doc->updated_at,
+                        'files'        => $doc->files,
+                    ];
+                })
+                :[],
+            ];
 
             return response()->json([
                 'status' => true,
-                'project' => $project,
+                'data'   => $data,
             ], 200);
 
         } catch (\Exception $e) {
-           return response()->json(['message' => 'Error occured', 'status' => false, 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Error occurred',
+                'status'  => false,
+                'error'   => $e->getMessage(),
+            ], 500);
         }
-
     }
 
     public function clientProjects($contactId)

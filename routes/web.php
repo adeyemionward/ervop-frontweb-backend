@@ -1,16 +1,11 @@
 <?php
 
+use App\Http\Controllers\ClientPortal\Project\OverviewController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Website\AI\HomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
-
-// Route::group(['prefix' => '/website', 'as' => 'website.'], function () {
-    // Route::get('/', [HomeController::class, 'home'])->name('home');
-// });
-
-
 
 
     Route::domain('{username}.localhost')
@@ -25,18 +20,17 @@ use PHPUnit\Framework\Attributes\Group;
         Route::get('/portfolio', [HomeController::class, 'portfolio'])->name('portfolio');
         Route::get('/scheduleAppointment', [HomeController::class, 'scheduleAppointment'])->name('scheduleAppointment');
 
+        Route::get('/portal/project/{cprojectId}', [OverviewController::class, 'index'])->name('index');
     });
 
     // Main domain routes (e.g., localhost)
 
     Route::middleware(['web'])->group(function () {
         Route::get('/', function () {
-            // Change this:
-            // return 'Main site (localhost)';
-
-            // To this:
             return view('landingpage.index');
         });
+
+
     });
 
 

@@ -116,4 +116,11 @@ class HomeController extends ClientBaseController
         return view('aiwebsite.appointment');
     }
 
+    
+     public function project_link(){
+        return view('aiwebsite.project_link');
+    }  //
+
+  
+
 }
