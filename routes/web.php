@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\ClientPortal\Project\AccessController;
+use App\Http\Controllers\ClientPortal\Project\DocumentController;
+use App\Http\Controllers\ClientPortal\Project\NoteController;
 use App\Http\Controllers\ClientPortal\Project\OverviewController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Website\AI\HomeController;
@@ -21,6 +24,29 @@ use PHPUnit\Framework\Attributes\Group;
         Route::get('/scheduleAppointment', [HomeController::class, 'scheduleAppointment'])->name('scheduleAppointment');
 
         Route::get('/portal/project/{cprojectId}', [OverviewController::class, 'index'])->name('index');
+
+        Route::group(['prefix' => '/documents', 'as' => 'documents.'], function () {
+            Route::post('newDocument/{cprojectId}', [DocumentController::class, 'newDocument'])->name('newDocument');
+            // Route::get('list', [DocumentController::class, 'index']);
+            // Route::get('userDocs/{id}', [DocumentController::class, 'userDocs']);
+            // Route::get('clientsWithDocs', [DocumentController::class, 'clientsWithDocs']);
+            // Route::put('update/{id}', [DocumentController::class, 'update']);
+            // Route::delete('delete/{id}', [DocumentController::class, 'delete']);
+
+            Route::get('/projects/{cprojectId}/partial', [DocumentController::class, 'reloadDocuments'])->name('reload');
+
+        });
+
+        Route::group(['prefix' => '/notes', 'as' => 'notes.'], function () {
+            Route::post('newNote/{cprojectId}', [NoteController::class, 'newNote'])->name('newNote');
+            Route::get('/projects/{cprojectId}/partial', [NoteController::class, 'reloadNotes'])->name('reload');
+        });
+
+        Route::post('/portal/verify-access', [AccessController::class, 'verify']);
+        // Check access (AJAX)
+        Route::get('/portal/check-access', function () {
+            return response()->json(['access' => session('portal_portal_access') ?? false]);
+        });
     });
 
     // Main domain routes (e.g., localhost)

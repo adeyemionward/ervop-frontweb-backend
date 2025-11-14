@@ -156,7 +156,7 @@ class DocumentController extends Controller
             if ($documentsFiles->isEmpty()) {
                 return response()->json(['message' => 'No document found', 'status' => false], 200);
             }
-                    
+
             return response()->json([
                 'status' => true,
                 'data' => DocumentFileResource::collection($documentsFiles),

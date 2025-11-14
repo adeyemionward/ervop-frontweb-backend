@@ -8,7 +8,7 @@ class ProjectNote extends Model
 {
      protected $fillable = [
         'user_id',
-        'appointment_id',
+        'project_id',
         'content',
     ];
 
